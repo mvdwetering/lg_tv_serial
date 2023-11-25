@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from homeassistant import config_entries
-from homeassistant.components.lg_tv_serial.config_flow import CannotConnect, InvalidAuth
-from homeassistant.components.lg_tv_serial.const import DOMAIN
+from custom_components.lg_tv_serial.config_flow import CannotConnect, InvalidAuth
+from custom_components.lg_tv_serial.const import DOMAIN
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
@@ -18,10 +18,10 @@ async def test_form(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> None:
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
     assert result["type"] == FlowResultType.FORM
-    assert result["errors"] is None
+    assert not result["errors"]
 
     with patch(
-        "homeassistant.components.lg_tv_serial.config_flow.PlaceholderHub.authenticate",
+        "custom_components.lg_tv_serial.config_flow.PlaceholderHub.authenticate",
         return_value=True,
     ):
         result2 = await hass.config_entries.flow.async_configure(
@@ -51,7 +51,7 @@ async def test_form_invalid_auth(hass: HomeAssistant) -> None:
     )
 
     with patch(
-        "homeassistant.components.lg_tv_serial.config_flow.PlaceholderHub.authenticate",
+        "custom_components.lg_tv_serial.config_flow.PlaceholderHub.authenticate",
         side_effect=InvalidAuth,
     ):
         result2 = await hass.config_entries.flow.async_configure(
@@ -74,7 +74,7 @@ async def test_form_cannot_connect(hass: HomeAssistant) -> None:
     )
 
     with patch(
-        "homeassistant.components.lg_tv_serial.config_flow.PlaceholderHub.authenticate",
+        "custom_components.lg_tv_serial.config_flow.PlaceholderHub.authenticate",
         side_effect=CannotConnect,
     ):
         result2 = await hass.config_entries.flow.async_configure(
