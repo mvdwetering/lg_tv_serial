@@ -11,7 +11,7 @@
   "integration_type": "device",
   "issues": "https://github.com/mvdwetering/lg_tv_serial/issues",
   "iot_class": "local_polling",
-  "requirements": [],
+  "requirements": ["git+https://github.com/pyserial/pyserial-asyncio.git@master#pyserial-asyncio==0.7"],
   "ssdp": [],
   "version": "0.0.0",
   "zeroconf": []
