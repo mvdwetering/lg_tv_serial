@@ -40,10 +40,10 @@ class LgTvProtocol(asyncio.Protocol):
             await self.connected_flag.wait()
 
     def data_received(self, data:bytes):
-        logging.debug('data received: %s', repr(data))
+        # logging.debug('data received: %s', repr(data))
 
         for d in data:
-            logging.debug('d=: %s', d)
+            # logging.debug('d=: %s', d)
             if d == END:
                 logging.debug("received command: %s", self._receive_buffer)
                 self._parse_response(self._receive_buffer)
@@ -84,12 +84,12 @@ class LgTvProtocol(asyncio.Protocol):
 
     def send(self, command1, command2, set_id:int, data0:int, data1:int|None = None, data2:int|None = None, data3:int|None = None, data4:int|None = None, data5:int|None = None):
         arguments = locals()
-        print(arguments)
+        # print(arguments)
         command_string = f"{command1}{command2} {set_id:02X}"
         data_index = 0
         while arguments[f"data{data_index}"] is not None:
             data = arguments[f"data{data_index}"]
-            print(data_index, data)
+            # print(data_index, data)
             command_string += f" {data:02X}"
             data_index += 1
         command_string += "\r"  # CR
@@ -100,23 +100,25 @@ class LgTvProtocol(asyncio.Protocol):
 
         self.transport.write(command)
 
-    async def do_command(self, command1, command2, set_id:int, data0:int, data1:int|None = None, data2:int|None = None, data3:int|None = None, data4:int|None = None, data5:int|None = None):
+    async def do_command(self, command1, command2, set_id:int, data0:int, data1:int|None = None, data2:int|None = None, data3:int|None = None, data4:int|None = None, data5:int|None = None) -> Response|bool:
         self._response = asyncio.get_running_loop().create_future()
         self._receive_buffer = bytearray()
 
-        print("before send")
+        # print("before send")
         self.send(command1, command2, set_id, data0, data1, data2, data3, data4, data5)
 
-        print("before await")
+        # print("before await")
         try:
             async with asyncio.timeout(1):
                 await self._response
         except TimeoutError:
             pass
 
-        print("after await")
+        # print("after await")
 
-        return self._response.result() if not self._response.cancelled() else False
+        result = self._response.result() if not self._response.cancelled() else False
+        logging.debug(result)
+        return result
 
 
 
