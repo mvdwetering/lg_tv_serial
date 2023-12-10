@@ -11,16 +11,16 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DOMAIN
+from custom_components.lg_tv_serial.lib import LgTv
+
+from .const import DOMAIN, SERIAL_URL
 
 _LOGGER = logging.getLogger(__name__)
 
 # TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required("host"): str,
-        vol.Required("username"): str,
-        vol.Required("password"): str,
+        vol.Required(SERIAL_URL): str,
     }
 )
 
@@ -47,24 +47,19 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     """
     # TODO validate the data can be used to set up a connection.
 
-    # If your PyPI package is not built with async, pass your methods
-    # to the executor:
-    # await hass.async_add_executor_job(
-    #     your_validate_func, data["username"], data["password"]
-    # )
-
-    hub = PlaceholderHub(data["host"])
-
-    if not await hub.authenticate(data["username"], data["password"]):
-        raise InvalidAuth
-
+    async with LgTv(data[SERIAL_URL]) as api:
+        print(f"here, {api}")
+        await api.connect()
+        await api.get_power_on()
+        print("done")
+    
     # If you cannot connect:
     # throw CannotConnect
     # If the authentication is wrong:
     # InvalidAuth
 
     # Return info that you want to store in the config entry.
-    return {"title": "Name of the device"}
+    return {"title": "LG TV"}
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
