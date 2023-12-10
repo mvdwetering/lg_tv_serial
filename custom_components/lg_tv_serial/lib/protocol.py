@@ -108,12 +108,15 @@ class LgTvProtocol(asyncio.Protocol):
         self.send(command1, command2, set_id, data0, data1, data2, data3, data4, data5)
 
         print("before await")
-
-        await self._response
+        try:
+            async with asyncio.timeout(1):
+                await self._response
+        except TimeoutError:
+            pass
 
         print("after await")
 
-        return self._response.result()
+        return self._response.result() if not self._response.cancelled() else False
 
 
 
@@ -133,6 +136,10 @@ async def main(serial_url:str):
     print(f"{response=}")
     await asyncio.sleep(2)
 
+    response = await protocol.do_command("k", "a", 0, 0xFF)
+    print(f"{response=}")
+    await asyncio.sleep(2)
+
     response = await protocol.do_command("k", "e", 0, 1)
     print(f"{response=}")
     await asyncio.sleep(2)
@@ -145,13 +152,13 @@ async def main(serial_url:str):
     print(f"{response=}")
     await asyncio.sleep(2)
 
-    # response = await protocol.do_command("k", "a", 0, 0xFF)
-    # print(f"{response=}")
-    # await asyncio.sleep(1)
+    response = await protocol.do_command("k", "a", 0, 0xFF)
+    print(f"{response=}")
+    await asyncio.sleep(1)
 
-    # response = await protocol.do_command("k", "a", 0, 3)
-    # print(f"{response=}")
-    # await asyncio.sleep(1)
+    response = await protocol.do_command("k", "a", 0, 3)
+    print(f"{response=}")
+    await asyncio.sleep(1)
 
     # protocol.send("k", "a", 0, 1)
     # await asyncio.sleep(1)
