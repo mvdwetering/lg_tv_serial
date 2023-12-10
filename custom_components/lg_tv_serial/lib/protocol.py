@@ -80,7 +80,7 @@ class LgTvProtocol(asyncio.Protocol):
 
     def connection_lost(self, exc):
         logging.debug('port closed')
-        self.transport.loop.stop()
+        # self.transport.loop.stop()
 
     def send(self, command1, command2, set_id:int, data0:int, data1:int|None = None, data2:int|None = None, data3:int|None = None, data4:int|None = None, data5:int|None = None):
         arguments = locals()
@@ -173,6 +173,11 @@ async def main(serial_url:str):
     # await asyncio.sleep(1)
     # await asyncio.sleep(1)
     # loop.close()
+
+    transport.close()
+    await asyncio.sleep(1)
+    print("transport closed")
+
 
 
 if __name__ == "__main__":
