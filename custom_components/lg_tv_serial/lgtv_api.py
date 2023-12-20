@@ -18,7 +18,7 @@ END_MARKER = b"x"
 @unique
 class RemoteKeyCode(IntEnum):
     CH_PLUS = 0x00
-    CH_MINUX = 0x01
+    CH_MINUS = 0x01
     VOLUME_PLUS = 0x02
     VOLUME_MINUS = 0x03
     ARROW_RIGHT = 0x06
@@ -310,16 +310,16 @@ class LgTv:
         return None
 
     async def volume_up(self) -> None:
-        await self._do_command("m", "c", 2)
+        await self._do_command("m", "c", RemoteKeyCode.VOLUME_PLUS)
 
     async def volume_down(self) -> None:
-        await self._do_command("m", "c", 3)
+        await self._do_command("m", "c", RemoteKeyCode.VOLUME_MINUS)
 
     async def channel_up(self) -> None:
-        await self._do_command("m", "c", 0)
+        await self._do_command("m", "c", RemoteKeyCode.CH_PLUS)
 
     async def channel_down(self) -> None:
-        await self._do_command("m", "c", 1)
+        await self._do_command("m", "c", RemoteKeyCode.CH_MINUS)
 
     async def remote_key(self, code: RemoteKeyCode) -> None:
         """Allows sending remote key codes, note that some key codes already have methods like `volume_up`"""
