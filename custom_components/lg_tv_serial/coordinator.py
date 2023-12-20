@@ -37,7 +37,7 @@ class LgTvCoordinator(DataUpdateCoordinator):
             # Name of the data. For logging purposes.
             name="LG TV",
             # Polling interval. Will only be polled if there are subscribers.
-            update_interval=datetime.timedelta(COORDINATOR_UPDATE_INTERVAL),
+            update_interval=datetime.timedelta(seconds=COORDINATOR_UPDATE_INTERVAL),
             request_refresh_debouncer=Debouncer(
                 hass, LOGGER, cooldown=1.0, immediate=False
             ),
