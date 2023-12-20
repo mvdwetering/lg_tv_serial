@@ -114,7 +114,7 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @property
     def volume_level(self):
         """Volume level of the media player (0..1)."""
-        return 33 #self.coordinator.data.volume / 100.0
+        return self.coordinator.data.volume / 100.0 if self.coordinator.data.volume is not None else None
 
     @schedule_ha_update
     async def async_set_volume_level(self, volume) -> None:
