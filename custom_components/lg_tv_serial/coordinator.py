@@ -66,6 +66,4 @@ class LgTvCoordinator(DataUpdateCoordinator):
                 return self.data
         except Exception as e:
             LOGGER.exception("Uh, oh. Something went wrong")
-        # except aioytmdesktopapi.RequestError as err:
-        #     raise UpdateFailed(f"Error communicating with API: {err}")
 
