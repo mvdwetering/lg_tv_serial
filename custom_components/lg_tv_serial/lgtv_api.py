@@ -163,9 +163,9 @@ def build_command(
         command_string += f" {data:02X}"
         data_index += 1
     command_string += "\r"  # CR
-    command = command_string.encode("ascii")
-
     logger.debug("build_command string: %s" % command_string)
+
+    command = command_string.encode("ascii")
     logger.debug("build_command bytes: %r" % command)
 
     return command
