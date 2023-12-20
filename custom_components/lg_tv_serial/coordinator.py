@@ -12,10 +12,8 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.util.dt import utcnow
 
-from custom_components.lg_tv_serial.lib import LgTv, Input
-
 from .const import COORDINATOR_UPDATE_INTERVAL, LOGGER
-
+from .lgtv_api import LgTv, Input
 
 @dataclass
 class CoordinatorData:

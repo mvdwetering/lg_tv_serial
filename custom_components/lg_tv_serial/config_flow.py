@@ -11,9 +11,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.lg_tv_serial.lib import LgTv
 
 from .const import DOMAIN, SERIAL_URL
+from .lgtv_api import LgTv
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -6,10 +6,10 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from custom_components.lg_tv_serial.lib import LgTv
 
 from .const import DOMAIN, LOGGER
 from .coordinator import LgTvCoordinator
+from .lgtv_api import LgTv
 
 # TODO List the platforms that you want to support.
 # For your initial PR, limit it to 1 platform.
