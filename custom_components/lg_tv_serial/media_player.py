@@ -119,7 +119,7 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @schedule_ha_update
     async def async_set_volume_level(self, volume) -> None:
         """Set volume level, convert range from 0..1."""
-        await self.coordinator.api.set_volume(volume * 100)
+        await self.coordinator.api.set_volume(int(volume * 100))
 
     @schedule_ha_update
     async def async_volume_up(self) -> None:
