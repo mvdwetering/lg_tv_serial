@@ -1,14 +1,19 @@
 import asyncio
 from dataclasses import dataclass
 import logging
+import re
 import sys
+from serial import SerialException
 
 import serial_asyncio
 
-from constants import Encoding3D, Mode3D, RemoteKeyCode, Input
-from protocol import LgTvProtocol, Response
+from .constants import Encoding3D, Mode3D, RemoteKeyCode, Input
+from .protocol import LgTvProtocol, Response
 
 logger = logging.getLogger(__name__)
+
+END_MARKER = b'x'
+WEIRD_VALUE = 0xFF
 
 @dataclass
 class Config3D:
@@ -16,6 +21,44 @@ class Config3D:
     encoding:Encoding3D
     right_to_left:bool
     depth:int
+
+
+def build_command(command1, command2, set_id:int, data0:int, data1:int|None = None, data2:int|None = None, data3:int|None = None, data4:int|None = None, data5:int|None = None) -> bytes:
+    arguments = locals()
+    # print(arguments)
+
+    command_string = f"{command1}{command2} {set_id:02X}"
+    data_index = 0
+    while arguments[f"data{data_index}"] is not None:
+        data = arguments[f"data{data_index}"]
+        # print(data_index, data)
+        command_string += f" {data:02X}"
+        data_index += 1
+    command_string += "\r"  # CR
+    command = command_string.encode("ascii")
+
+    logging.debug("build_command string: %s", command_string)
+    logging.debug("build_command bytes: %s", command)
+
+    return command
+
+def parse_response(reponse:bytearray) -> Response | None:
+    try:
+        match = re.match(r"(?P<cmd2>.) (?P<set_id>\d\d) (?P<status>..)(?P<data>.+)", reponse.decode("ascii"))
+        if match is None:
+            logging.error("Could not match %s", reponse)
+            return None
+
+        logging.debug("DEBUG MATCH DATA: %s, %s, %s, %s", match.group("cmd2"), match.group("set_id"), match.group("status"), match.group("data"))
+        cmd2 = match.group("cmd2")
+        set_id = int(match.group("set_id"), 16)
+        status_ok = match.group("status") == "OK"
+        data0 = int(match.group("data"), 16)
+
+        return Response(cmd2, set_id, status_ok, data0)
+    except Exception as e:
+        logging.error("Could not parse data from %s", reponse)
+        raise e
 
 
 class LgTv:
@@ -28,6 +71,10 @@ class LgTv:
     ) -> None:
         self._serial_url = serial_url
         self._set_id = set_id
+        self._lock = asyncio.Lock()
+        self._reader:asyncio.StreamReader
+        self._writer:asyncio.StreamWriter
+        self._on_disconnect = None
 
     async def __aenter__(self):
         return self
@@ -35,21 +82,53 @@ class LgTv:
     async def __aexit__(self, exc_type, exc, tb):
         await self.close()
 
-    async def connect(self):
-        loop = asyncio.get_event_loop()
-        transport, protocol = await serial_asyncio.create_serial_connection(loop, LgTvProtocol, self._serial_url, baudrate=9600)
-    
-        await protocol.wait_for_connection_made()
-        self._protocol:LgTvProtocol = protocol
-        self._transport = transport
+    async def connect(self, on_disconnect=None):
+        try:
+            (self._reader, self._writer) = await serial_asyncio.open_serial_connection(url=self._serial_url, baudrate=9600)
+            self._on_disconnect = on_disconnect
+        except SerialException:
+            raise ConnectionError("Could not connect to LG TV")
 
     async def close(self):
-        if self._transport:
-            self._transport.close()
+        if self._writer:
+            self._writer.close()
+            await self._writer.wait_closed()
 
 
     async def _do_command(self, command1, command2, data0:int, data1:int|None = None, data2:int|None = None, data3:int|None = None, data4:int|None = None, data5:int|None = None) -> Response|bool:
-        return await self._protocol.do_command(command1, command2, self._set_id, data0, data1, data2, data3, data4, data5)
+        async with self._lock:
+            command = build_command(command1, command2, self._set_id, data0, data1, data2, data3, data4, data5)
+            print("before send", command)
+            self._writer.write(command)
+
+            print("before await")
+            try:
+                async with asyncio.timeout(5):
+                    command = bytearray()
+                    while True:
+                        data = await self._reader.read(1)
+                        if data == END_MARKER:
+                            print("parsing data:", command)
+                            result = parse_response(command)
+                            return result
+                        if data == WEIRD_VALUE:
+                            # Sometimes the TV returns 0xFF, it is unclear why
+                            # and the value is not documented
+                            # I think it means something like "busy"
+                            return False
+                        if data == b'':
+                            # Connection closed
+                            raise ConnectionError("Connection closed")
+                        command.extend(data)
+            except TimeoutError:
+                logger.debug("TimeoutError")
+            except ConnectionError:
+                if self._on_disconnect:
+                    await self._on_disconnect()
+
+            print("_do_command failed")
+            return False
+            # return await self._protocol.do_command(command1, command2, self._set_id, data0, data1, data2, data3, data4, data5)
 
 
     async def set_power_on(self, value:bool) -> None:
