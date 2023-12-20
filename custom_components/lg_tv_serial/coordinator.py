@@ -12,10 +12,8 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.util.dt import utcnow
 
-from custom_components.lg_tv_serial.lib import LgTv, Input
-
 from .const import COORDINATOR_UPDATE_INTERVAL, LOGGER
-
+from .lgtv_api import LgTv, Input
 
 @dataclass
 class CoordinatorData:
@@ -66,6 +64,4 @@ class LgTvCoordinator(DataUpdateCoordinator):
                 return self.data
         except Exception as e:
             LOGGER.exception("Uh, oh. Something went wrong")
-        # except aioytmdesktopapi.RequestError as err:
-        #     raise UpdateFailed(f"Error communicating with API: {err}")
 

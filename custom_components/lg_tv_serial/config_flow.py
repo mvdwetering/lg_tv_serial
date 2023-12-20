@@ -11,13 +11,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 
-from custom_components.lg_tv_serial.lib import LgTv
 
 from .const import DOMAIN, SERIAL_URL
+from .lgtv_api import LgTv
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(SERIAL_URL): str,
@@ -25,40 +24,18 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-class PlaceholderHub:
-    """Placeholder class to make tests pass.
-
-    TODO Remove this placeholder class and replace with things from your PyPI package.
-    """
-
-    def __init__(self, host: str) -> None:
-        """Initialize."""
-        self.host = host
-
-    async def authenticate(self, username: str, password: str) -> bool:
-        """Test if we can authenticate with the host."""
-        return True
-
-
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
     """Validate the user input allows us to connect.
 
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
-    # TODO validate the data can be used to set up a connection.
-
-    async with LgTv(data[SERIAL_URL]) as api:
-        print(f"here, {api}")
-        await api.connect()
-        await api.get_power_on()
-        print("done")
+    try:
+        async with LgTv(data[SERIAL_URL]) as api:
+            await api.connect()
+            await api.get_power_on()
+    except ConnectionError as e:
+        raise CannotConnect("Could not connect to LG TV")
     
-    # If you cannot connect:
-    # throw CannotConnect
-    # If the authentication is wrong:
-    # InvalidAuth
-
-    # Return info that you want to store in the config entry.
     return {"title": "LG TV"}
 
 

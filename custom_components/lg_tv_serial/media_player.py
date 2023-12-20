@@ -1,27 +1,23 @@
 from __future__ import annotations
-import asyncio
-from typing import List, Optional
+from typing import List
 
 from homeassistant.components.media_player import (
     MediaPlayerDeviceClass,
     MediaPlayerEntity,
     MediaPlayerEntityFeature,
     MediaPlayerState,
-    MediaType,
-    RepeatMode,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.lg_tv_serial.lib.constants import Input
 
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN
 from .coordinator import LgTvCoordinator
+from .lgtv_api import Input
 
 SUPPORTED_MEDIAPLAYER_COMMANDS = (
-    MediaPlayerEntityFeature.TURN_ON
-    | MediaPlayerEntityFeature.TURN_OFF
+    MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF
 )
 
 SOURCE_INPUT_MAPPING = {
@@ -82,12 +78,16 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             await self.coordinator.async_request_refresh()
 
         return _decorator
+
     @property
     def supported_features(self):
         """Flag of media commands that are supported."""
         features = SUPPORTED_MEDIAPLAYER_COMMANDS
         if self.coordinator.data.volume is not None:
-            features |= MediaPlayerEntityFeature.VOLUME_SET | MediaPlayerEntityFeature.VOLUME_STEP
+            features |= (
+                MediaPlayerEntityFeature.VOLUME_SET
+                | MediaPlayerEntityFeature.VOLUME_STEP
+            )
         if self.coordinator.data.mute is not None:
             features |= MediaPlayerEntityFeature.VOLUME_MUTE
         if self.coordinator.data.input is not None:
@@ -114,7 +114,11 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @property
     def volume_level(self):
         """Volume level of the media player (0..1)."""
-        return self.coordinator.data.volume / 100.0 if self.coordinator.data.volume is not None else None
+        return (
+            self.coordinator.data.volume / 100.0
+            if self.coordinator.data.volume is not None
+            else None
+        )
 
     @schedule_ha_update
     async def async_set_volume_level(self, volume) -> None:
@@ -157,7 +161,7 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     def source_list(self) -> List[str]:
         """List of available sources."""
         sources = []
-        for k  in SOURCE_INPUT_MAPPING.keys():
+        for k in SOURCE_INPUT_MAPPING.keys():
             if isinstance(k, str):
                 sources.append(k)
         return sorted(sources, key=str.lower)
