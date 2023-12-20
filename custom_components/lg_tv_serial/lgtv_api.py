@@ -240,7 +240,7 @@ class LgTv:
         data3: int | None = None,
         data4: int | None = None,
         data5: int | None = None,
-    ) -> Response | bool:
+    ) -> Response | None:
         async with self._lock:
             command = build_command(
                 command1,
@@ -263,12 +263,12 @@ class LgTv:
                         if data == END_MARKER:
                             logger.debug("parsing data: %s" % command)
                             result = parse_response(command)
-                            return result or False
+                            return result
                         if data == 0xFF:
                             # Sometimes the TV returns 0xFF, it is unclear why
                             # and the value is not documented
                             # Seems to mean something like "busy"?
-                            return False
+                            return None
                         if data == b"":
                             raise ConnectionError("Connection lost")
                         command.extend(data)
@@ -278,14 +278,14 @@ class LgTv:
                 if self._on_disconnect:
                     await self._on_disconnect()
 
-            return False
+            return None
 
     async def set_power_on(self, value: bool) -> None:
         await self._do_command("k", "a", 1 if value else 0)
 
     async def get_power_on(self) -> bool | None:
         response = await self._do_command("k", "a", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0 == 1
         return None
 
@@ -294,7 +294,7 @@ class LgTv:
 
     async def get_mute(self) -> bool | None:
         response = await self._do_command("k", "e", 0, 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0 == 1
         return None
 
@@ -305,7 +305,7 @@ class LgTv:
 
     async def get_volume(self) -> int | None:
         response = await self._do_command("k", "f", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0
         return None
 
@@ -332,7 +332,7 @@ class LgTv:
 
     async def get_contrast(self) -> int | None:
         response = await self._do_command("k", "g", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0
         return None
 
@@ -343,7 +343,7 @@ class LgTv:
 
     async def get_brightness(self) -> int | None:
         response = await self._do_command("k", "h", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0
         return None
 
@@ -354,7 +354,7 @@ class LgTv:
 
     async def get_color(self) -> int | None:
         response = await self._do_command("k", "i", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0
         return None
 
@@ -365,7 +365,7 @@ class LgTv:
 
     async def get_sharpness(self) -> int | None:
         response = await self._do_command("k", "k", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0
         return None
 
@@ -374,7 +374,7 @@ class LgTv:
 
     async def get_remote_control_lock(self) -> bool | None:
         response = await self._do_command("k", "m", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0 == 1
         return None
 
@@ -385,7 +385,7 @@ class LgTv:
 
     async def get_treble(self) -> int | None:
         response = await self._do_command("k", "r", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0
         return None
 
@@ -396,7 +396,7 @@ class LgTv:
 
     async def get_bass(self) -> int | None:
         response = await self._do_command("k", "s", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0
         return None
 
@@ -407,7 +407,7 @@ class LgTv:
 
     async def get_balance(self) -> int | None:
         response = await self._do_command("k", "t", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0
         return None
 
@@ -418,7 +418,7 @@ class LgTv:
 
     async def get_color_temperature(self) -> int | None:
         response = await self._do_command("x", "u", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return response.data0
         return None
 
@@ -427,7 +427,7 @@ class LgTv:
 
     async def get_input(self) -> Input | None:
         response = await self._do_command("x", "b", 0xFF)
-        if isinstance(response, Response) and response.status_ok:
+        if response and response.status_ok:
             return Input(response.data0)
         return None
 
@@ -439,9 +439,11 @@ class LgTv:
         )
 
     # Does not seem to work even though my TV supports 3D
-    # async def get_3d(self) -> Config3D:
+    # async def get_3d(self) -> Config3D | None:
     #     response = await self._do_command("x", "t", 0xFF)
-    #     return Config3D(Mode3D(response.data0), Encoding3D(response.data1), response.data2==1, response.data3)
+    #     if response and response.status_ok:
+    #       return Config3D(Mode3D(response.data0), Encoding3D(response.data1), response.data2==1, response.data3)
+    #    return None
 
 
 async def main(serial_url: str):
