@@ -148,6 +148,7 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             return SOURCE_INPUT_MAPPING[self.coordinator.data.input]
         return None
 
+    @schedule_ha_update
     async def async_select_source(self, source):
         """Select input source."""
         await self.coordinator.api.set_input(SOURCE_INPUT_MAPPING[source])
