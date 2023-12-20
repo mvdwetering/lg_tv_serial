@@ -14,7 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.lg_tv_serial.lib.constants import Input
+from custom_components.lg_tv_serial.lib.lgtv import Input
 
 from .const import DOMAIN, LOGGER
 from .coordinator import LgTvCoordinator
