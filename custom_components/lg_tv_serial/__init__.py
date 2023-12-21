@@ -11,7 +11,7 @@ from .const import DOMAIN, LOGGER
 from .coordinator import LgTvCoordinator
 from .lgtv_api import LgTv
 
-PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER]
+PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.REMOTE]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

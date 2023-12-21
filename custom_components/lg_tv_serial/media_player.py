@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 
-from .const import DOMAIN
+from .const import DEFAULT_DEVICE_NAME, DOMAIN
 from .coordinator import LgTvCoordinator
 from .lgtv_api import Input
 
@@ -63,11 +63,10 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     def __init__(self, coordinator: LgTvCoordinator, configentry_id: str) -> None:
         super().__init__(coordinator)
         self.coordinator: LgTvCoordinator
-        self._configentry_id = configentry_id
 
         self._attr_unique_id = configentry_id
         self._attr_device_info = {
-            "name": "LG TV",  # API does not expose a name. Pick a decent default, user can change
+            "name": DEFAULT_DEVICE_NAME,  # API does not expose a name. Pick a decent default, user can change
             "identifiers": {(DOMAIN, configentry_id)},
         }
 
