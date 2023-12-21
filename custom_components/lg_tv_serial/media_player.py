@@ -75,7 +75,8 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         async def _decorator(self: LgTvMediaPlayer, *args, **kwargs):
             await func(self, *args, **kwargs)
             # Use request_async_refresh so the debouncer is used to delay the request a bit
-            await self.coordinator.async_request_refresh()
+            # await self.coordinator.async_request_refresh()
+            self.async_write_ha_state()
 
         return _decorator
 
@@ -105,11 +106,15 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     async def async_turn_on(self):
         """Turn the media player on."""
         await self.coordinator.api.set_power_on(True)
+        self.coordinator.data.power_on = True
+        # Use request_async_refresh so the debouncer is used to delay the request a bit
+        await self.coordinator.async_request_refresh()
 
     @schedule_ha_update
     async def async_turn_off(self):
         """Turn off media player."""
         await self.coordinator.api.set_power_on(False)
+        self.coordinator.data.power_on = False
 
     @property
     def volume_level(self):
@@ -123,17 +128,21 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @schedule_ha_update
     async def async_set_volume_level(self, volume) -> None:
         """Set volume level, convert range from 0..1."""
-        await self.coordinator.api.set_volume(int(volume * 100))
+        tv_volume = int(volume * 100)
+        await self.coordinator.api.set_volume(tv_volume)
+        self.coordinator.data.volume = tv_volume
 
     @schedule_ha_update
     async def async_volume_up(self) -> None:
         """Volume up media player."""
         await self.coordinator.api.volume_up()
+        self.coordinator.data.volume = min(100, self.coordinator.data.volume + 1)
 
     @schedule_ha_update
     async def async_volume_down(self) -> None:
         """Volume down media player."""
         await self.coordinator.api.volume_down()
+        self.coordinator.data.volume = max(0, self.coordinator.data.volume - 1)
 
     @property
     def is_volume_muted(self):
@@ -144,6 +153,7 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     async def async_mute_volume(self, mute):
         """Mute (true) or unmute (false) media player."""
         await self.coordinator.api.set_mute(mute)
+        self.coordinator.data.mute = mute
 
     @property
     def source(self):
@@ -156,6 +166,7 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     async def async_select_source(self, source):
         """Select input source."""
         await self.coordinator.api.set_input(SOURCE_INPUT_MAPPING[source])
+        self.coordinator.data.input = SOURCE_INPUT_MAPPING[source]
 
     @property
     def source_list(self) -> List[str]:
