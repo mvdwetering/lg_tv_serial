@@ -52,6 +52,13 @@ async def async_setup_entry(
     async_add_entities([LgTvMediaPlayer(coordinator, config_entry.entry_id)], True)
 
 
+def update_ha_state(func):
+    async def _decorator(self, *args, **kwargs):
+        await func(self, *args, **kwargs)
+        self.async_write_ha_state()
+
+    return _decorator
+
 class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     """LG TV mediaplayer."""
 
@@ -68,15 +75,6 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             "name": DEFAULT_DEVICE_NAME,  # API does not expose a name. Pick a decent default, user can change
             "identifiers": {(DOMAIN, configentry_id)},
         }
-
-    def update_ha_state(func):
-        async def _decorator(self: LgTvMediaPlayer, *args, **kwargs):
-            await func(self, *args, **kwargs)
-            # Use request_async_refresh so the debouncer is used to delay the request a bit
-            # await self.coordinator.async_request_refresh()
-            self.async_write_ha_state()
-
-        return _decorator
 
     @property
     def supported_features(self):
