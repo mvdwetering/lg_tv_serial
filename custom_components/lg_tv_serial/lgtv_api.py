@@ -264,10 +264,10 @@ class LgTv:
                             logger.debug("parsing data: %s" % command)
                             result = parse_response(command)
                             return result
-                        if data == 0xFF:
-                            # Sometimes the TV returns 0xFF, it is unclear why
-                            # and the value is not documented
-                            # Seems to mean something like "busy"?
+                        if data == 0xFF or data == 0x00:
+                            # Sometimes the TV returns 0xFF and have also seen 0x00
+                            # it is unclear why as these values are not documented
+                            # Maybe it is busy? Lets just ignore it.
                             return None
                         if data == b"":
                             raise ConnectionError("Connection lost")
