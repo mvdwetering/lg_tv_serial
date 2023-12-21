@@ -22,8 +22,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class LgTvRemote(CoordinatorEntity, RemoteEntity):
     """Representation of a remote of an LG TV."""
 
-    _attr_name = "Remote"
     _attr_has_entity_name = True
+    _attr_translation_key = "remote_control"
     _unrecorded_attributes = frozenset({ATTR_COMMANDS})
 
     def __init__(
