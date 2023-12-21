@@ -260,18 +260,19 @@ class LgTv:
                     command = bytearray()
                     while True:
                         data = await self._reader.read(1)
-                        if data == END_MARKER:
-                            logger.debug("parsing data: %s" % command)
-                            result = parse_response(command)
-                            return result
-                        if data == 0xFF or data == 0x00:
-                            # Sometimes the TV returns 0xFF and have also seen 0x00
-                            # it is unclear why as these values are not documented
-                            # Maybe it is busy? Lets just ignore it.
-                            return None
+                        # logger.debug(data)
                         if data == b"":
                             raise ConnectionError("Connection lost")
-                        command.extend(data)
+                        elif data == b' ' or data.isalnum():
+                            if data == END_MARKER:
+                                logger.debug("parsing data: %s" % command)
+                                result = parse_response(command)
+                                return result
+                            command.extend(data)
+                        else:
+                            # Sometimes weird values are read from the device e.g. 0xFF
+                            # Lets just ignore those
+                            return None
             except TimeoutError:
                 logger.debug("Timeout while waiting for response")
             except ConnectionError:
