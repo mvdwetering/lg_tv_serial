@@ -54,4 +54,4 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
     async def async_send_command(self, command: Iterable[str], **kwargs):
         """Send commands to a device."""
         for cmd in command:
-            self.coordinator.api.remote_key(RemoteKeyCode[cmd])
+            await self.coordinator.api.remote_key(RemoteKeyCode[cmd])

@@ -20,7 +20,7 @@ SUPPORTED_MEDIAPLAYER_COMMANDS = (
     MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF
 )
 
-SOURCE_INPUT_MAPPING = {
+INPUT_SOURCE_MAPPING = {
     Input.DTV: "Digital TV",
     Input.CADTV: "Cable Digital TV",
     Input.SATELLITE_DTV__ISDB_BS_JAPAN: "Satellite TV / ISDB BS (Japan)",
@@ -40,10 +40,9 @@ SOURCE_INPUT_MAPPING = {
 
 # Also add the reverse mapping to SOURCE_INPUT_MAPPING
 # This works because the values do not overlap
-reverse_mapping = {}
-for k, v in SOURCE_INPUT_MAPPING.items():
-    reverse_mapping[v] = k
-SOURCE_INPUT_MAPPING = SOURCE_INPUT_MAPPING | reverse_mapping
+SOURCE_INPUT_MAPPING:dict[str, Input] = {}
+for k, v in INPUT_SOURCE_MAPPING.items():
+    SOURCE_INPUT_MAPPING[v] = k
 
 
 async def async_setup_entry(
@@ -135,13 +134,15 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     async def async_volume_up(self) -> None:
         """Volume up media player."""
         await self.coordinator.api.volume_up()
-        self.coordinator.data.volume = min(100, self.coordinator.data.volume + 1)
+        if self.coordinator.data.volume is not None:
+            self.coordinator.data.volume = min(100, self.coordinator.data.volume + 1)
 
     @update_ha_state
     async def async_volume_down(self) -> None:
         """Volume down media player."""
         await self.coordinator.api.volume_down()
-        self.coordinator.data.volume = max(0, self.coordinator.data.volume - 1)
+        if self.coordinator.data.volume is not None:
+            self.coordinator.data.volume = max(0, self.coordinator.data.volume - 1)
 
     @property
     def is_volume_muted(self):
@@ -152,26 +153,24 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     async def async_mute_volume(self, mute):
         """Mute (true) or unmute (false) media player."""
         await self.coordinator.api.set_mute(mute)
-        self.coordinator.data.mute = mute
+        if self.coordinator.data.mute is not None:
+            self.coordinator.data.mute = mute
 
     @property
     def source(self):
         """Return the current input source."""
         if self.coordinator.data.input is not None:
-            return SOURCE_INPUT_MAPPING[self.coordinator.data.input]
+            return INPUT_SOURCE_MAPPING[self.coordinator.data.input]
         return None
 
     @update_ha_state
     async def async_select_source(self, source):
         """Select input source."""
         await self.coordinator.api.set_input(SOURCE_INPUT_MAPPING[source])
-        self.coordinator.data.input = SOURCE_INPUT_MAPPING[source]
+        if self.coordinator.data.input is not None:
+            self.coordinator.data.input = SOURCE_INPUT_MAPPING[source]
 
     @property
     def source_list(self) -> List[str]:
         """List of available sources."""
-        sources = []
-        for k in SOURCE_INPUT_MAPPING.keys():
-            if isinstance(k, str):
-                sources.append(k)
-        return sorted(sources, key=str.lower)
+        return sorted([v for v in INPUT_SOURCE_MAPPING.values()], key=str.lower)
