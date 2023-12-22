@@ -53,7 +53,7 @@ async def async_setup_entry(
 
 
 def update_ha_state(func):
-    async def _decorator(self, *args, **kwargs):
+    async def _decorator(self:LgTvMediaPlayer, *args, **kwargs):
         await func(self, *args, **kwargs)
         self.async_write_ha_state()
 
