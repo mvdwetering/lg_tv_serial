@@ -42,10 +42,14 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
 
         self._attr_extra_state_attributes = {ATTR_COMMANDS: [code.name.lower() for code in RemoteKeyCode]}
 
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return self.coordinator.data.power_on == True
+
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Send the power on command."""
         await self.coordinator.api.set_power_on(True)
-
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Send the power off command."""
