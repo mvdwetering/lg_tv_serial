@@ -101,6 +101,13 @@ class Input(IntEnum):
     HDMI3 = 0x92
     HDMI4 = 0x93
 
+    @classmethod
+    def _missing_(cls, value):
+        logger.warning("Unknown value '%s' in %s", value, cls.__name__)
+        return cls.UNKNOWN
+
+    UNKNOWN = 0xFF
+    """Unknown values in the enum are mapped to 0xFF"""
 
 @unique
 class Mode3D(IntEnum):
@@ -227,8 +234,11 @@ class LgTv:
 
     async def close(self):
         if self._writer:
-            self._writer.close()
-            await self._writer.wait_closed()
+            try:
+                self._writer.close()
+                await self._writer.wait_closed()
+            except ConnectionError:
+                logger.debug("Connection error while closing")
 
     async def _do_command(
         self,
