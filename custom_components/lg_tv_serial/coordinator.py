@@ -61,7 +61,8 @@ class LgTvCoordinator(DataUpdateCoordinator):
                     self.data.input = None
                     self.data.remote_control_lock = None
                 LOGGER.debug(self.data)
-                return self.data
         except Exception as e:
             LOGGER.exception("Uh, oh. Something went wrong")
+
+        return self.data
 
