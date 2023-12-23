@@ -9,6 +9,7 @@ from homeassistant.components.media_player import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 
@@ -75,10 +76,10 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         self.coordinator: LgTvCoordinator
 
         self._attr_unique_id = configentry_id
-        self._attr_device_info = {
-            "name": DEFAULT_DEVICE_NAME,  # API does not expose a name. Pick a decent default, user can change
-            "identifiers": {(DOMAIN, configentry_id)},
-        }
+        self._attr_device_info = DeviceInfo(
+            name=DEFAULT_DEVICE_NAME,  # API does not expose a name. Pick a decent default, user can change
+            identifiers={(DOMAIN, configentry_id)},
+        )
 
     @property
     def supported_features(self):

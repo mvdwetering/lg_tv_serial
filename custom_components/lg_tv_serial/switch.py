@@ -6,7 +6,7 @@ from homeassistant.components.switch import (
     SwitchEntity,
     SwitchEntityDescription,
 )
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.entity import EntityCategory, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DEFAULT_DEVICE_NAME, DOMAIN
@@ -71,11 +71,10 @@ class LgTvSwitch(CoordinatorEntity, SwitchEntity):
 
         self._attr_unique_id = f"{configentry_id}_switch_{self.entity_description.key}"
 
-        self._attr_device_info = {
-            "name": DEFAULT_DEVICE_NAME,  # API does not expose a name. Pick a decent default, user can change
-            "identifiers": {(DOMAIN, configentry_id)},
-        }
-
+        self._attr_device_info = DeviceInfo(
+            name=DEFAULT_DEVICE_NAME,  # API does not expose a name. Pick a decent default, user can change
+            identifiers={(DOMAIN, configentry_id)},
+        )
 
     @property
     def available(self) -> bool:

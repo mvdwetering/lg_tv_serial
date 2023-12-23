@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Iterable
 
 from homeassistant.components.remote import RemoteEntity
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .coordinator import LgTvCoordinator
@@ -35,10 +36,10 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
         self.coordinator: LgTvCoordinator
 
         self._attr_unique_id = configentry_id
-        self._attr_device_info = {
-            "name": DEFAULT_DEVICE_NAME,  # API does not expose a name. Pick a decent default, user can change
-            "identifiers": {(DOMAIN, configentry_id)},
-        }
+        self._attr_device_info = DeviceInfo(
+            name=DEFAULT_DEVICE_NAME,  # API does not expose a name. Pick a decent default, user can change
+            identifiers={(DOMAIN, configentry_id)},
+        )
 
         self._attr_extra_state_attributes = {ATTR_COMMANDS: [code.name.lower() for code in RemoteKeyCode]}
 
