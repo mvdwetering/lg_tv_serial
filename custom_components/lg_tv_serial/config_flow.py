@@ -32,9 +32,10 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     try:
         async with LgTv(data[SERIAL_URL]) as api:
             await api.connect()
-            await api.get_power_on()
+            if await api.get_power_on() is None:
+                raise CannotConnect("No response from LG TV")
     except ConnectionError as e:
-        raise CannotConnect("Could not connect to LG TV")
+        raise CannotConnect("Could not connect to LG TV, check port settings")
     
     return {"title": "LG TV"}
 
