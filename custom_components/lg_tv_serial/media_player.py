@@ -36,6 +36,7 @@ INPUT_SOURCE_MAPPING = {
     Input.HDMI2: "HDMI2",
     Input.HDMI3: "HDMI3",
     Input.HDMI4: "HDMI4",
+    Input.UNKNOWN: "Unknown",
 }
 
 # Also add the reverse mapping to SOURCE_INPUT_MAPPING
@@ -55,7 +56,10 @@ async def async_setup_entry(
 def update_ha_state(func):
     async def _decorator(self:LgTvMediaPlayer, *args, **kwargs):
         await func(self, *args, **kwargs)
-        self.async_write_ha_state()
+        # Trigger listeners with new optimistic data
+        # Also resets polling delay so won't interfere with turn on/off
+        self.coordinator.async_set_updated_data(self.coordinator.data)
+        # self.async_write_ha_state()
 
     return _decorator
 
@@ -94,23 +98,30 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @property
     def state(self) -> MediaPlayerState | None:
         """Return the state of the entity."""
-        if self.coordinator.data.power_on:
-            return MediaPlayerState.ON
-        return MediaPlayerState.STANDBY
+        if self.coordinator.data.power_on is False:
+            return MediaPlayerState.STANDBY
+
+        if not self.coordinator.data.power_synced:
+            # It is busy turning on/off which takes a while
+            # There seems to be no way to idicate this.
+            # To avoid UI flipping use Buffering as placeholder
+            return MediaPlayerState.BUFFERING
+
+        return MediaPlayerState.ON
 
     @update_ha_state
     async def async_turn_on(self):
         """Turn the media player on."""
         await self.coordinator.api.set_power_on(True)
         self.coordinator.data.power_on = True
-        # Use request_async_refresh so the debouncer is used to delay the request a bit
-        await self.coordinator.async_request_refresh()
+        self.coordinator.data.power_synced = False
 
     @update_ha_state
     async def async_turn_off(self):
         """Turn off media player."""
         await self.coordinator.api.set_power_on(False)
         self.coordinator.data.power_on = False
+        self.coordinator.data.power_synced= False
 
     @property
     def volume_level(self):

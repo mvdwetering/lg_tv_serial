@@ -17,11 +17,12 @@ from .lgtv_api import LgTv, Input
 
 @dataclass
 class CoordinatorData:
-    power_on:bool|None
-    mute:bool|None
-    volume:int|None
-    input:Input|None
-    remote_control_lock:bool|None
+    power_on:bool|None = None
+    mute:bool|None = None
+    volume:int|None = None
+    input:Input|None = None
+    remote_control_lock:bool|None = None
+    power_synced:bool|None = None
 
 
 class LgTvCoordinator(DataUpdateCoordinator):
@@ -41,7 +42,7 @@ class LgTvCoordinator(DataUpdateCoordinator):
             ),
         )
         self.api = api
-        self.data:CoordinatorData = CoordinatorData(None, None, None, None, None)
+        self.data:CoordinatorData = CoordinatorData()
 
     async def _async_update_data(self):
         """Fetch data from API endpoint."""
@@ -60,6 +61,7 @@ class LgTvCoordinator(DataUpdateCoordinator):
                     self.data.volume = None
                     self.data.input = None
                     self.data.remote_control_lock = None
+                self.data.power_synced = True
                 LOGGER.debug(self.data)
         except Exception as e:
             LOGGER.exception("Uh, oh. Something went wrong")

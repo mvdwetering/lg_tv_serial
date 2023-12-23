@@ -34,7 +34,7 @@ ENTITY_DESCRIPTIONS = [
         is_on=lambda coordinator_data: coordinator_data.remote_control_lock == True,
         turn_on=lambda api, data: set_remote_control_lock(api, data, True),
         turn_off=lambda api, data: set_remote_control_lock(api, data, False),
-        is_available=lambda api, coordinator_data: coordinator_data.remote_control_lock is not None,
+        is_available=lambda api, coordinator_data: coordinator_data.remote_control_lock is not None and coordinator_data.power_on,
     ),
 ]
 
