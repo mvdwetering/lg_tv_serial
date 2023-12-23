@@ -214,8 +214,8 @@ class LgTv:
         self._set_id = set_id
         self._lock = asyncio.Lock()
         self._on_disconnect = None
+        self._writer: asyncio.StreamWriter | None = None
         self._reader: asyncio.StreamReader
-        self._writer: asyncio.StreamWriter
 
     async def __aenter__(self):
         return self
@@ -230,7 +230,7 @@ class LgTv:
             )
             self._on_disconnect = on_disconnect
         except SerialException:
-            raise ConnectionError("Could not connect to LG TV")
+            raise ConnectionError("Could not connect to LG TV, check the port settings")
 
     async def close(self):
         if self._writer:
@@ -263,6 +263,7 @@ class LgTv:
                 data4,
                 data5,
             )
+            assert self._writer is not None
             self._writer.write(command)
 
             try:
