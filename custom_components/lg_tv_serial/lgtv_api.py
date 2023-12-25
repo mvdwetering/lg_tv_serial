@@ -238,7 +238,9 @@ class LgTv:
                 self._writer.close()
                 await self._writer.wait_closed()
             except ConnectionError:
-                logger.debug("Connection error while closing")
+                logger.debug("Connection error while closing", exc_info=True)
+            except SerialException:
+                logger.debug("Serial exception error while closing", exc_info=True)
 
     async def _do_command(
         self,
