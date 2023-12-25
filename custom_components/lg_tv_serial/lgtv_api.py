@@ -280,7 +280,14 @@ class LgTv:
                             if data == END_MARKER:
                                 logger.debug("parsing data: %s" % command)
                                 result = parse_response(command)
+                                if result and result.command2 != command2:
+                                    # I have seen situations where somehow a response was in the buffer twice so everything got out of sync.
+                                    # Not sure why it happens, just detect and pretend it was a connection error and hope it fixes itself
+                                    # TODO: This needs some more robust handling
+                                    raise ConnectionError("Response not for command that was sent")
+
                                 return result
+
                             command.extend(data)
                         else:
                             # Sometimes weird values are read from the device e.g. 0xFF
