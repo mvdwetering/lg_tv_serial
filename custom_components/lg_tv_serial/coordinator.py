@@ -65,6 +65,7 @@ class LgTvCoordinator(DataUpdateCoordinator):
                 LOGGER.debug(self.data)
         except Exception as e:
             LOGGER.exception("Uh, oh. Something went wrong")
+            raise e
 
         return self.data
 
