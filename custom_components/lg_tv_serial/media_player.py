@@ -108,7 +108,10 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             # To avoid UI flipping use Buffering as placeholder
             return MediaPlayerState.BUFFERING
 
-        return MediaPlayerState.ON
+        if self.coordinator.data.power_on is True:
+            return MediaPlayerState.ON
+
+        return None
 
     @update_ha_state
     async def async_turn_on(self):
