@@ -227,8 +227,6 @@ class LgTv:
         """
         `on_disconnect` will be called when it is detected that a connection is not working anymore.
         It will _not_ be called when calling `close()` manually.
-
-        Note that after handling the disconnect it is still needed to call close on the API.
         """
         try:
             (self._reader, self._writer) = await serial_asyncio.open_serial_connection(
