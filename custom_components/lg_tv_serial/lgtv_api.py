@@ -246,6 +246,10 @@ class LgTv:
             except SerialException:
                 logger.debug("Serial exception error while closing", exc_info=True)
 
+    async def _call_on_disconnect(self):
+        if self._on_disconnect:
+            await self._on_disconnect()
+
     async def _do_command(
         self,
         command1,
@@ -305,13 +309,11 @@ class LgTv:
             except TimeoutError:
                 logger.debug("Timeout while waiting for response")
             except ConnectionError:
-                if self._on_disconnect:
-                    await self._on_disconnect()
-                self.close()
+                await self._call_on_disconnect()
+                await self.close()
             except SerialException:
-                if self._on_disconnect:
-                    await self._on_disconnect()
-                self.close()
+                await self._call_on_disconnect()
+                await self.close()
 
             return None
 
