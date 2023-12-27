@@ -297,8 +297,13 @@ class LgTv:
                             command.extend(data)
                         else:
                             # Sometimes weird values are read from the device e.g. 0xFF
-                            # Lets just ignore those
-                            return None
+                            # Lets just ignore those.
+                            # These might have actually been the cause of the out-of-sync issue
+                            # since before the receiving would be "complete"
+                            # Now just ignore those values completely and move on.
+                            # I have only seen these weird values alone or before the actual command
+                            # so that should work out fine
+                            continue
             except TimeoutError:
                 logger.debug("Timeout while waiting for response")
             except ConnectionError:
