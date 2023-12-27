@@ -304,6 +304,11 @@ class LgTv:
             except ConnectionError:
                 if self._on_disconnect:
                     await self._on_disconnect()
+                self.close()
+            except SerialException:
+                if self._on_disconnect:
+                    await self._on_disconnect()
+                self.close()
 
             return None
 
