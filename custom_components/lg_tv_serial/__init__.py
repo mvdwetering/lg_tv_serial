@@ -33,9 +33,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             pass
 
     try:
-        await api.connect(on_disconnect)
+        await api.connect()
+        # Do something with the connection to make sure it can transfer data
+        if await api.get_power_on() is None:
+            raise ConfigEntryNotReady(f"Could not get data from LG TV: {entry.title}")
     except ConnectionError as e:
-        raise ConfigEntryNotReady("Could not connect to LG TV: %s" % entry.title)
+        raise ConfigEntryNotReady(f"Could not connect to LG TV: {entry.title}")
+
+    # Add on_disconnect after connection seems to work.
+    # This avoids issues when it gets triggered during initial setup
+    # TODO: Should not access private attributes
+    api._on_disconnect = on_disconnect
 
     coordinator = LgTvCoordinator(hass, api)
     await coordinator.async_config_entry_first_refresh()
