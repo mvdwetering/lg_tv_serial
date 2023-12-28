@@ -1,4 +1,4 @@
-"""Coordinator for the YouTube Music Desktop Remote Control integration."""
+"""Coordinator for the LG TV integration."""
 
 from dataclasses import dataclass
 import datetime
