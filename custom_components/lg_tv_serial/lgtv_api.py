@@ -7,7 +7,7 @@ import re
 import sys
 from serial import SerialException
 
-import serial_asyncio
+import serial_asyncio_fast
 
 
 logger = logging.getLogger(__name__)
@@ -229,7 +229,7 @@ class LgTv:
         It will _not_ be called when calling `close()` manually.
         """
         try:
-            (self._reader, self._writer) = await serial_asyncio.open_serial_connection(
+            (self._reader, self._writer) = await serial_asyncio_fast.open_serial_connection(
                 url=self._serial_url, baudrate=9600
             )
             self._on_disconnect = on_disconnect
