@@ -46,7 +46,7 @@ class LgTvCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self):
         """Fetch data from API endpoint."""
-        try:
+        #try:
             # Note: asyncio.TimeoutError and aiohttp.ClientError are already
             # handled by the data update coordinator.
             async with async_timeout.timeout(COORDINATOR_UPDATE_INTERVAL-1):
@@ -63,9 +63,9 @@ class LgTvCoordinator(DataUpdateCoordinator):
                     self.data.remote_control_lock = None
                 self.data.power_synced = True
                 LOGGER.debug(self.data)
-        except Exception as e:
-            LOGGER.exception("Uh, oh. Something went wrong")
-            raise e
+        #except Exception as e:
+            # LOGGER.exception("Uh, oh. Something went wrong")
+            #raise #e
 
         return self.data
 
