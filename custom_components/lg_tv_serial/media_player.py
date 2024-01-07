@@ -100,7 +100,7 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     def state(self) -> MediaPlayerState | None:
         """Return the state of the entity."""
         if self.coordinator.data.power_on is False:
-            return MediaPlayerState.STANDBY
+            return MediaPlayerState.OFF
 
         if not self.coordinator.data.power_synced:
             # It is busy turning on/off which takes a while
