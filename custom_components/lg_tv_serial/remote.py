@@ -47,7 +47,7 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        return self.coordinator.data.power_on and self.coordinator.data.power_synced
+        return bool(self.coordinator.data.power_on and self.coordinator.data.power_synced)
 
     @update_ha_state
     async def async_turn_on(self, **kwargs: Any) -> None:
