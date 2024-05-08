@@ -22,28 +22,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api = LgTv(entry.data["serial_url"])
 
     async def on_disconnect():
-        LOGGER.debug("Disconnected, attempt to reload integration")
+        LOGGER.info("Disconnected, attempt to reload integration")
         # Reload the entry on disconnect.
         # HA will take care of re-init and retries
         try:
             await hass.config_entries.async_reload(entry.entry_id)
+            LOGGER.debug("Reload called")
         except OperationNotAllowed:  # pragma: no cover
             # Can not reload when during setup
             # Which is fine, so just let it go
-            pass
+            LOGGER.debug("Operation now allowed", exc_info=True)
 
     try:
-        await api.connect()
+        await api.connect(on_disconnect)
         # Do something with the connection to make sure it can transfer data
         if await api.get_power_on() is None:
             raise ConfigEntryNotReady(f"Could not get data from LG TV: {entry.title}")
     except ConnectionError as e:
         raise ConfigEntryNotReady(f"Could not connect to LG TV: {entry.title}")
-
-    # Add on_disconnect after connection seems to work.
-    # This avoids issues when it gets triggered during initial setup
-    # TODO: Should not access private attributes
-    api._on_disconnect = on_disconnect
 
     coordinator = LgTvCoordinator(hass, api)
     await coordinator.async_config_entry_first_refresh()

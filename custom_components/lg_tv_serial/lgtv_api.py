@@ -5,9 +5,9 @@ from enum import IntEnum, unique
 import logging
 import re
 import sys
-from serial import SerialException
+from serial import SerialException  # type: ignore
 
-import serial_asyncio_fast
+import serial_asyncio_fast  # type: ignore
 
 
 logger = logging.getLogger(__name__)
@@ -232,11 +232,22 @@ class LgTv:
             (self._reader, self._writer) = await serial_asyncio_fast.open_serial_connection(
                 url=self._serial_url, baudrate=9600
             )
+
+            # Do something with the connection to make sure it can transfer data
+            await self.get_power_on()
+
+            # Only install on_disconnect after connection seems to work to avoid triggering it while not really connected
             self._on_disconnect = on_disconnect
         except SerialException:
             raise ConnectionError("Could not connect to LG TV, check the port settings")
 
     async def close(self):
+        await self._close(False)
+
+    async def _close(self, call_on_disconnect):
+        if call_on_disconnect and self._on_disconnect:
+            await self._on_disconnect()
+
         if self._writer:
             try:
                 self._writer.close()
@@ -245,10 +256,6 @@ class LgTv:
                 logger.debug("Connection error while closing", exc_info=True)
             except SerialException:
                 logger.debug("Serial exception error while closing", exc_info=True)
-
-    async def _call_on_disconnect(self):
-        if self._on_disconnect:
-            await self._on_disconnect()
 
     async def _do_command(
         self,
@@ -273,12 +280,13 @@ class LgTv:
                 data4,
                 data5,
             )
-            assert self._writer is not None
-            self._writer.write(command)
 
             try:
                 async with asyncio.timeout(5):
-                    command = bytearray()
+                    assert self._writer is not None
+                    self._writer.write(command)
+
+                    response = bytearray()
                     while True:
                         data = await self._reader.read(1)
                         # logger.debug(data)
@@ -286,8 +294,8 @@ class LgTv:
                             raise ConnectionError("Connection lost")
                         elif data == b' ' or data.isalnum():
                             if data == END_MARKER:
-                                logger.debug("parsing data: %s" % command)
-                                result = parse_response(command)
+                                logger.debug("parsing data: %s" % response)
+                                result = parse_response(response)
                                 if result and result.command2 != command2:
                                     # I have seen situations where somehow a response was in the buffer twice so everything got out of sync.
                                     # Not sure why it happens, just detect and pretend it was a connection error and hope it fixes itself
@@ -296,7 +304,7 @@ class LgTv:
 
                                 return result
 
-                            command.extend(data)
+                            response.extend(data)
                         else:
                             # Sometimes weird values are read from the device e.g. 0xFF
                             # Lets just ignore those.
@@ -307,13 +315,13 @@ class LgTv:
                             # so that should work out fine
                             continue
             except TimeoutError:
-                logger.debug("Timeout while waiting for response")
+                logger.warning("Timeout while waiting for response")
             except ConnectionError:
-                await self._call_on_disconnect()
-                await self.close()
+                logger.warning("Connection error")
+                await self._close(True)
             except SerialException:
-                await self._call_on_disconnect()
-                await self.close()
+                logger.warning("Serial error", exc_info=True)
+                await self._close(True)
 
             return None
 
@@ -487,10 +495,13 @@ async def main(serial_url: str):
     async with LgTv(serial_url) as tv:
         await tv.connect()
 
-        print("Current settings")
+        print("--- Current power state")
         print(f"{await tv.get_power_on()=}")
+        print("--- Power on TV")
         await tv.set_power_on(True)
+        print("--- Wait a bit")
         await asyncio.sleep(2)
+        print("--- Get all values")
         print(f"{await tv.get_power_on()=}")
         print(f"{await tv.get_input()=}")
         print(f"{await tv.get_volume()=}")
