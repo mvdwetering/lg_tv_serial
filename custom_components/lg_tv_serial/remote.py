@@ -15,6 +15,7 @@ from .const import (
 )
 
 from .lgtv_api import RemoteKeyCode
+from .helpers import update_ha_state
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator: LgTvCoordinator = hass.data[DOMAIN][config_entry.entry_id]
@@ -48,15 +49,21 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
         """Return True if entity is available."""
         return self.coordinator.data.power_on and self.coordinator.data.power_synced
 
+    @update_ha_state
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Send the power on command."""
         await self.coordinator.api.set_power_on(True)
+        self.coordinator.data.power_on = True
+        self.coordinator.data.power_synced = False
 
+    @update_ha_state
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Send the power off command."""
-        self.send_command(["standby"])
+        await self.coordinator.api.set_power_on(False)
+        self.coordinator.data.power_on = False
+        self.coordinator.data.power_synced = False
 
     async def async_send_command(self, command: Iterable[str], **kwargs):
         """Send commands to a device."""
         for cmd in command:
-            await self.coordinator.api.remote_key(RemoteKeyCode[cmd])
+            await self.coordinator.api.remote_key(RemoteKeyCode[cmd.upper()])
