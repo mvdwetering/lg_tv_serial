@@ -291,7 +291,7 @@ class LgTv:
                         data = await self._reader.read(1)
                         # logger.debug(data)
                         if data == b"":
-                            raise ConnectionError("Connection lost")
+                            raise ConnectionError("No data, connection lost")
                         elif data == b' ' or data.isalnum():
                             if data == END_MARKER:
                                 logger.debug("parsing data: %s" % response)
@@ -317,7 +317,7 @@ class LgTv:
             except TimeoutError:
                 logger.warning("Timeout while waiting for response")
             except ConnectionError:
-                logger.warning("Connection error")
+                logger.warning("Connection error", exc_info=True)
                 await self._close(True)
             except SerialException:
                 logger.warning("Serial error", exc_info=True)

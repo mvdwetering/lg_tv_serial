@@ -26,12 +26,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Reload the entry on disconnect.
         # HA will take care of re-init and retries
         try:
-            await hass.config_entries.async_reload(entry.entry_id)
-            LOGGER.debug("Reload called")
+            # Call reload in a task, otherwise it seems to lock up
+            hass.async_create_task(hass.config_entries.async_reload(entry.entry_id))
         except OperationNotAllowed:  # pragma: no cover
             # Can not reload when during setup
             # Which is fine, so just let it go
-            LOGGER.debug("Operation now allowed", exc_info=True)
+            LOGGER.debug("Operation not allowed", exc_info=True)
 
     try:
         await api.connect(on_disconnect)
