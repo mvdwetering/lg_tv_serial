@@ -49,9 +49,6 @@ class LgTvCoordinator(DataUpdateCoordinator):
         # Note: asyncio.TimeoutError and aiohttp.ClientError are already
         # handled by the data update coordinator.
 
-        # Probably not needed to add our own timeout
-        #async with async_timeout.timeout(COORDINATOR_UPDATE_INTERVAL-1):
-
         self.data.power_on = await self.api.get_power_on()
         if self.data.power_on:
             self.data.mute = await self.api.get_mute()
