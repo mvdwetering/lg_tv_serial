@@ -46,7 +46,7 @@ class RemoteKeyCode(IntEnum):
     AV_MODE = 0x30
     CAPTION_SUBTITLE = 0x39
     ARROW_UP = 0x40
-    ARROW_DOWNMUTE = 0x41
+    ARROW_DOWN = 0x41
     MY_APPS = 0x42
     MENU_SETTINGS = 0x43
     OK_ENTER = 0x44
