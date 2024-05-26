@@ -316,12 +316,14 @@ class LgTv:
                             continue
             except TimeoutError:
                 logger.warning("Timeout while waiting for response")
-            except ConnectionError:
+            except ConnectionError as e:
                 logger.warning("Connection error", exc_info=True)
                 await self._close(True)
-            except SerialException:
+                raise e
+            except SerialException as e:
                 logger.warning("Serial error", exc_info=True)
                 await self._close(True)
+                raise ConnectionError("Serial connection error") from e
 
             return None
 

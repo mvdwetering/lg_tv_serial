@@ -16,6 +16,7 @@ PLATFORMS: list[Platform] = [Platform.MEDIA_PLAYER, Platform.REMOTE, Platform.SW
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up LG TV Serial from a config entry."""
+    LOGGER.info("async_setup_entry")
 
     hass.data.setdefault(DOMAIN, {})
 
@@ -34,20 +35,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             LOGGER.debug("Operation not allowed", exc_info=True)
 
     try:
-        await api.connect(on_disconnect)
+        # await api.connect(on_disconnect)
+        await api.connect()
         # Do something with the connection to make sure it can transfer data
         if await api.get_power_on() is None:
             raise ConfigEntryNotReady(f"Could not get data from LG TV: {entry.title}")
+
+        coordinator = LgTvCoordinator(hass, entry, api)
+        await coordinator.async_config_entry_first_refresh()
+        hass.data[DOMAIN][entry.entry_id] = coordinator
+
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+        return True
     except ConnectionError as e:
         raise ConfigEntryNotReady(f"Could not connect to LG TV: {entry.title}")
 
-    coordinator = LgTvCoordinator(hass, api)
-    await coordinator.async_config_entry_first_refresh()
-    hass.data[DOMAIN][entry.entry_id] = coordinator
-
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
