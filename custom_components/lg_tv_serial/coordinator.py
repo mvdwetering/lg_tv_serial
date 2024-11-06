@@ -61,8 +61,7 @@ class LgTvCoordinator(DataUpdateCoordinator):
             self.data.power_synced = True
         except ConnectionError:
             LOGGER.debug("ConnectionError, reload integration", exc_info=True)
-            # Call reload in a task, otherwise it seems to lock up
-            self.hass.async_create_task(self.hass.config_entries.async_reload(self.config_entry.entry_id))
+            await self.hass.config_entries.async_reload(self.config_entry.entry_id)
 
         LOGGER.debug(self.data)
 
