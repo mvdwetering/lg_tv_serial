@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry, OperationNotAllowed
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 
 
@@ -22,6 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     api = LgTv(entry.data["serial_url"])
 
+    @callback
     async def on_disconnect():
         LOGGER.info("Disconnected, attempt to reload integration")
         # Reload the entry on disconnect.
@@ -35,8 +36,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             LOGGER.debug("Operation not allowed", exc_info=True)
 
     try:
-        # await api.connect(on_disconnect)
-        await api.connect()
+        await api.connect(on_disconnect)
         # Do something with the connection to make sure it can transfer data
         if await api.get_power_on() is None:
             raise ConfigEntryNotReady(f"Could not get data from LG TV: {entry.title}")
