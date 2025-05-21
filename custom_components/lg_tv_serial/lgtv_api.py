@@ -361,12 +361,15 @@ class LgTv:
         return None
 
     async def set_mute(self, mute: bool) -> None:
-        await self._do_command("k", "e", 1 if mute else 0)
+        await self._do_command("k", "e", 0 if mute else 1)
 
     async def get_mute(self) -> bool | None:
         response = await self._do_command("k", "e", 0, 0xFF)
         if response and response.status_ok:
-            return response.data0 == 1
+            # Mute feels flipped, but is according to the documentation
+            # Data 00: Volume mute on (Volume off)
+            # Data 01: Volume mute off (Volume on)
+            return response.data0 == 0
         return None
 
     async def set_volume(self, value: int) -> None:
