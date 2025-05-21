@@ -1,0 +1,22 @@
+send_raw:
+  target:
+    device:
+      integration: lg_tv_serial
+    entity:
+      integration: lg_tv_serial
+  fields:
+    command1:
+      example: k
+      required: true
+      selector:
+        text:
+    command2:
+      example: e
+      required: true
+      selector:
+        text:
+    data:
+      example: 01
+      required: true
+      selector:
+        text:

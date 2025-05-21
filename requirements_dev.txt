@@ -2,5 +2,5 @@
 
 mypy>=1.4.0
 
-homeassistant-stubs==2023.11.0
-pytest-homeassistant-custom-component==0.13.74
+homeassistant-stubs==2025.2.0
+pytest-homeassistant-custom-component==0.13.210

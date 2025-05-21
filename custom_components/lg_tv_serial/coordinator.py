@@ -10,7 +10,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .const import COORDINATOR_UPDATE_INTERVAL, LOGGER
-from .lgtv_api import LgTv, Input
+from .lgtv_api import EnergySaving, LgTv, Input
 
 @dataclass
 class CoordinatorData:
@@ -19,6 +19,7 @@ class CoordinatorData:
     volume:int|None = None
     input:Input|None = None
     remote_control_lock:bool|None = None
+    energy_saving:EnergySaving|None = None
     power_synced:bool|None = None
 
 
@@ -53,11 +54,13 @@ class LgTvCoordinator(DataUpdateCoordinator):
                 self.data.volume = await self.api.get_volume()
                 self.data.input = await self.api.get_input()
                 self.data.remote_control_lock = await self.api.get_remote_control_lock()
+                self.data.energy_saving = await self.api.get_energy_saving()
             else:
                 self.data.mute = None
                 self.data.volume = None
                 self.data.input = None
                 self.data.remote_control_lock = None
+                self.data.energy_saving = None
             self.data.power_synced = True
         except ConnectionError:
             LOGGER.debug("ConnectionError, reload integration", exc_info=True)

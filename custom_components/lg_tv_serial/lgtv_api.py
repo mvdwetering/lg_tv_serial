@@ -136,6 +136,21 @@ class Config3D:
     right_to_left: bool
     depth: int
 
+@unique
+class EnergySaving(IntEnum):
+    OFF = 0x00
+    MINIMUM = 0x01
+    MEDIUM = 0x02
+    MAXIMUM = 0x03
+    AUTO = 0x04
+    SCREEN_OFF = 0x05
+    UNKNOWN = 0xFF
+
+    @classmethod
+    def _missing_(cls, value):
+        logger.warning("Unknown value '%s' in %s", value, cls.__name__)
+        return cls.UNKNOWN
+
 
 @dataclass
 class Response:
@@ -346,12 +361,15 @@ class LgTv:
         return None
 
     async def set_mute(self, mute: bool) -> None:
-        await self._do_command("k", "e", 1 if mute else 0)
+        await self._do_command("k", "e", 0 if mute else 1)
 
     async def get_mute(self) -> bool | None:
         response = await self._do_command("k", "e", 0, 0xFF)
         if response and response.status_ok:
-            return response.data0 == 1
+            # Mute feels flipped, but is according to the documentation
+            # Data 00: Volume mute on (Volume off)
+            # Data 01: Volume mute off (Volume on)
+            return response.data0 == 0
         return None
 
     async def set_volume(self, value: int) -> None:
@@ -501,6 +519,30 @@ class LgTv:
     #       return Config3D(Mode3D(response.data0), Encoding3D(response.data1), response.data2==1, response.data3)
     #    return None
 
+    async def set_energy_saving(self, value: EnergySaving) -> None:
+        await self._do_command("j", "q", value)
+
+    async def get_energy_saving(self) -> EnergySaving | None:
+        response = await self._do_command("j", "q", 0xFF)
+        if response and response.status_ok:
+            return EnergySaving(response.data0)
+        return None
+
+    async def send_raw(
+        self, command1: str, command2: str, data: str
+    ) -> None:
+        # Split hexstring into bytes
+        bytes_list = [int(data[i:i+2], 16) for i in range(0, len(data), 2)]
+        # Pad to 6 elements (data0 to data5), fill with None if not enough
+        params = bytes_list + [None] * (6 - len(bytes_list))
+        if params[0] is None:
+            raise ValueError("At least one byte of data is required for send_raw")
+        await self._do_command(
+            command1, command2,
+            params[0], params[1], params[2], params[3], params[4], params[5]
+        )
+
+
 
 async def main(serial_url: str):
     async with LgTv(serial_url) as tv:
@@ -526,6 +568,12 @@ async def main(serial_url: str):
         print(f"{await tv.get_color_temperature()=}")
         print(f"{await tv.get_sharpness()=}")
         print(f"{await tv.get_remote_control_lock()=}")
+        print(f"{await tv.get_energy_saving()=}")
+
+        # await tv.send_raw("k", "e", "01")
+        # print(f"{await tv.get_mute()=}")
+        # await tv.send_raw("k", "e", "00")
+        # print(f"{await tv.get_mute()=}")
 
 
 if __name__ == "__main__":
@@ -533,7 +581,7 @@ if __name__ == "__main__":
         print("Must provide a serial_url parameter like:")
         print("  COM3")
         print("  /dev/ttyUSB0")
-        print("  socket://192.168.178.53:11113")
+        print("  socket://192.168.178.42:10003")
         exit(1)
 
     logging.basicConfig(level="INFO")
