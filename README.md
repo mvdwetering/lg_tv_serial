@@ -4,11 +4,11 @@ Custom integration for Home Assistant to control LG TVs that support the serial 
 
 The protocol is [documented by LG here](https://www.lg.com/ca_en/support/product-support/troubleshoot/help-library/cs-CT20098005-20153058982994/). Kudos for LG for making the protocol specification available.
 
-This is a quick-and-dirty integration and is only manual tested a bit. But seems to work fine for me for a while now. 
+This is a quick-and-dirty integration and is only manual tested a bit. But seems to work fine for me for a while now (mostly to just turn on/off the TV).
 
 I am unsure for what range of TV models this applies, I have an older model from 2011 which has a DB9 serial connector for this protocol. Check the owners manual of your TV (downloadable from LG website) to see if it supports this protocol.
 
-# Gotchas
+## Gotchas
 
 It takes a while for the TV to change actual state when turning on/off. This is indicated (a bit hacky) by using the state "Buffering". When state is ON it is safe to send other commands.
 
@@ -38,3 +38,22 @@ Note that `repeat` and `delay` parameters in the servicecall are not supported
 ### Control lock switch
 
 Switch that enables/disables IR remote control according to the manual
+
+### Energy Saving select
+
+Select that allows to select Energy Saving modes. Note that the entity is disabled by default.
+
+### Action for sending raw commands
+
+If there is a need to send commands that are not supported one can use the "lg_tv_serial.send_raw" action. Check the LG documentation for the command formats.
+
+```yaml
+action: lg_tv_serial.send_raw
+target:
+  entity_id:
+    - media_player.lg_tv
+data:
+  command1: j
+  command2: q
+  data: "01"
+```
