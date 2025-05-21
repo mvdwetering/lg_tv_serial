@@ -10,8 +10,8 @@
         },
         "step": {
             "user": {
-              "description": "The serial port can be a normal serial port like '/dev/ttyUSB0', but can also be any [URL handler as supported by PySerial](https://pyserial.readthedocs.io/en/latest/url_handlers.html).\n\nThis can come in handy when addressing USB adapters by serial with `hwgrep://` or use `rfc2217://hostname_or_ip` to connect through an rfc2217 compatible server for more advanced usecases.",
-              "data": {
+                "description": "The serial port can be a normal serial port like '/dev/ttyUSB0', but can also be any [URL handler as supported by PySerial](https://pyserial.readthedocs.io/en/latest/url_handlers.html).\n\nThis can come in handy when addressing USB adapters by serial with `hwgrep://` or use `rfc2217://hostname_or_ip` to connect through an rfc2217 compatible server for more advanced usecases.",
+                "data": {
                     "serial_url": "Serial port e.g. /dev/ttyUSB0"
                 }
             }
@@ -23,10 +23,43 @@
                 "name": "Remote control"
             }
         },
+        "select": {
+            "energy_saving": {
+                "name": "Energy saving",
+                "state": {
+                    "off": "Off",
+                    "minimum": "Minimum",
+                    "medium": "Medium",
+                    "maximum": "Maximum",
+                    "auto": "Auto",
+                    "screen_off": "Screen off"
+                }
+            }
+        },
         "switch": {
             "remote_control_lock": {
                 "name": "Control lock"
             }
         }
+    },
+    "services": {
+        "send_raw": {
+            "name": "Send raw LG TV serial command",
+            "description": "Send raw commands to the TV, intended for debugging.",
+            "fields": {
+                "command1": {
+                    "name": "Command 1",
+                    "description": "First command letter, called COMMAND1 in the documentation."
+                },
+                "command2": {
+                    "name": "Command 2",
+                    "description": "Second command letter, called COMMAND2 in the documentation."
+                },
+                "data": {
+                    "name": "Data",
+                    "description": "Data bytes to send, called DATA in the documentation. This is a hex string, e.g. 000102."
+                }
+            }
+        }
     }
-  }
+}
