@@ -1,4 +1,5 @@
 """LG TV API, this should really be in its own package, but not now"""
+
 import asyncio
 from dataclasses import dataclass
 from enum import IntEnum, unique
@@ -109,6 +110,7 @@ class Input(IntEnum):
     UNKNOWN = 0xFF
     """Unknown values in the enum are mapped to 0xFF"""
 
+
 @unique
 class Mode3D(IntEnum):
     ON = 0x00
@@ -136,6 +138,7 @@ class Config3D:
     right_to_left: bool
     depth: int
 
+
 @unique
 class EnergySaving(IntEnum):
     OFF = 0x00
@@ -144,6 +147,7 @@ class EnergySaving(IntEnum):
     MAXIMUM = 0x03
     AUTO = 0x04
     SCREEN_OFF = 0x05
+
 
 @dataclass
 class Response:
@@ -237,8 +241,10 @@ class LgTv:
         It will _not_ be called when calling `close()` manually.
         """
         try:
-            (self._reader, self._writer) = await serial_asyncio_fast.open_serial_connection(
-                url=self._serial_url, baudrate=9600
+            (self._reader, self._writer) = (
+                await serial_asyncio_fast.open_serial_connection(
+                    url=self._serial_url, baudrate=9600
+                )
             )
 
             # Do something with the connection to make sure it can transfer data
@@ -300,7 +306,7 @@ class LgTv:
                         # logger.debug(data)
                         if data == b"":
                             raise ConnectionError("No data, connection lost")
-                        elif data == b' ' or data.isalnum():
+                        elif data == b" " or data.isalnum():
                             if data == END_MARKER:
                                 logger.debug("parsing data: %s" % response)
                                 result = parse_response(response)
@@ -308,7 +314,9 @@ class LgTv:
                                     # I have seen situations where somehow a response was in the buffer twice so everything got out of sync.
                                     # Not sure why it happens, just detect and pretend it was a connection error and hope it fixes itself
                                     # TODO: This needs some more robust handling
-                                    raise ConnectionError("Response not for command that was sent")
+                                    raise ConnectionError(
+                                        "Response not for command that was sent"
+                                    )
 
                                 return result
 
@@ -332,7 +340,7 @@ class LgTv:
                 # This can be thrown from asyncio, e.g. when Host is not reachable
                 # Not catching resulted in HA not giving up and huge logfile :/
                 logger.warning("OSError error", exc_info=True)
-                # Make it a connection error, since that is what the LG TV API 
+                # Make it a connection error, since that is what the LG TV API
                 # is "documented" to throw on issues (and will result in reload in HA)
                 raise ConnectionError from e
             except SerialException as e:
