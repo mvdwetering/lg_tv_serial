@@ -57,3 +57,31 @@ data:
   command2: e
   data0: "1"
 ```
+
+## Download
+
+### Home Assistant Community Store (HACS)
+
+*Recommended as you get notifications of updates*
+
+HACS is a 3rd party downloader for Home Assistant to easily install and update custom integrations made by the community. More information and installation instructions can be found on their site https://hacs.xyz/
+
+* Add this repository https://github.com/mvdwetering/lg_tv_serial to HACS as a "custom repository" with category "integration". This option can be found in the ⋮ menu
+* Install the integration from within HACS
+* Restart Home Assistant
+
+### Manual
+
+* Download the release zip file
+* Extract the Zip file in the `custom_components` directory
+* Restart Home Assistant
+
+## Configure
+
+Configure the integration as usual.
+
+* Go to Settings > Devices and Services and press Add Integration.
+* Search for "LG TV Serial"
+* Provide the serial port to which the TV is connected
+  * For real serial ports usually something like "/dev/ttyUSB0"
+  * When you use a tcp-to-serial converter you can probably use "socket://1.2.3.4:5678" where the IP and Port have to be changed for your situation
