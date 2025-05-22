@@ -510,19 +510,25 @@ class LgTv:
         return None
 
     async def send_raw(
-        self, command1: str, command2: str, data: list[int|None]
+        self, command1: str, command2: str, data: list[int | None]
     ) -> None:
+        data = list(data)  # Copy list to avoid modifying the original
+
         if not (1 <= len(data) <= 6) or data[0] is None:
             raise ValueError("Data must be a list of 1 to 6 bytes")
+
+        for idx, value in enumerate(data):
+            if value is not None and not (0 <= value <= 255):
+                raise ValueError(
+                    f"Data #{idx} value {value!r} must be between 0 and 255"
+                )
 
         while len(data) < 6:
             data.append(None)
 
         await self._do_command(
-            command1, command2,
-            data[0], data[1], data[2], data[3], data[4], data[5]
+            command1, command2, data[0], data[1], data[2], data[3], data[4], data[5]
         )
-
 
 
 async def main(serial_url: str):
