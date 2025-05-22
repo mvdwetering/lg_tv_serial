@@ -1,8 +1,15 @@
 from __future__ import annotations
 
+import time
 from typing import Any, Iterable
 
-from homeassistant.components.remote import RemoteEntity
+from homeassistant.components.remote import (
+    ATTR_DELAY_SECS,
+    ATTR_NUM_REPEATS,
+    DEFAULT_DELAY_SECS,
+    DEFAULT_NUM_REPEATS,
+    RemoteEntity,
+)
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -65,5 +72,14 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
 
     async def async_send_command(self, command: Iterable[str], **kwargs):
         """Send commands to a device."""
-        for cmd in command:
-            await self.coordinator.api.remote_key(RemoteKeyCode[cmd.upper()])
+        num_repeats = kwargs.get(ATTR_NUM_REPEATS, DEFAULT_NUM_REPEATS)
+        delay_secs = kwargs.get(ATTR_DELAY_SECS, DEFAULT_DELAY_SECS)
+
+        first = True
+        for _ in range(num_repeats):
+            for cmd in command:
+                if not first:
+                    time.sleep(delay_secs)
+                first = False
+    
+                await self.coordinator.api.remote_key(RemoteKeyCode[cmd.upper()])
