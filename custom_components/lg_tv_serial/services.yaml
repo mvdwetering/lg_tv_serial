@@ -15,8 +15,33 @@ send_raw:
       required: true
       selector:
         text:
-    data:
-      example: 01
+    data0:
+      example: 1
       required: true
+      selector:
+        text:
+    data1:
+      example: 
+      required: false
+      selector:
+        text:
+    data2:
+      example: 
+      required: false
+      selector:
+        text:
+    data3:
+      example: 
+      required: false
+      selector:
+        text:
+    data4:
+      example: 
+      required: false
+      selector:
+        text:
+    data5:
+      example: 
+      required: false
       selector:
         text:

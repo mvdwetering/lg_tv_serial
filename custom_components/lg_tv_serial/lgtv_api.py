@@ -510,17 +510,17 @@ class LgTv:
         return None
 
     async def send_raw(
-        self, command1: str, command2: str, data: str
+        self, command1: str, command2: str, data: list[int|None]
     ) -> None:
-        # Split hexstring into bytes
-        bytes_list = [int(data[i:i+2], 16) for i in range(0, len(data), 2)]
-        # Pad to 6 elements (data0 to data5), fill with None if not enough
-        params = bytes_list + [None] * (6 - len(bytes_list))
-        if params[0] is None:
-            raise ValueError("At least one byte of data is required for send_raw")
+        if not (1 <= len(data) <= 6) or data[0] is None:
+            raise ValueError("Data must be a list of 1 to 6 bytes")
+
+        while len(data) < 6:
+            data.append(None)
+
         await self._do_command(
             command1, command2,
-            params[0], params[1], params[2], params[3], params[4], params[5]
+            data[0], data[1], data[2], data[3], data[4], data[5]
         )
 
 
