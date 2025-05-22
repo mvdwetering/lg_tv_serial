@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import time
 from typing import Any, Iterable
 
 from homeassistant.components.remote import (
@@ -25,9 +24,11 @@ from .const import (
 from .lgtv_api import RemoteKeyCode
 from .helpers import update_ha_state
 
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator: LgTvCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     async_add_entities([LgTvRemote(coordinator, config_entry.entry_id)])
+
 
 class LgTvRemote(CoordinatorEntity, RemoteEntity):
     """Representation of a remote of an LG TV."""
@@ -36,11 +37,7 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
     _attr_translation_key = "remote_control"
     _unrecorded_attributes = frozenset({ATTR_COMMANDS})
 
-    def __init__(
-        self,
-        coordinator: LgTvCoordinator,
-        configentry_id: str
-    ):
+    def __init__(self, coordinator: LgTvCoordinator, configentry_id: str):
         super().__init__(coordinator)
         self.coordinator: LgTvCoordinator
 
@@ -50,12 +47,16 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
             identifiers={(DOMAIN, configentry_id)},
         )
 
-        self._attr_extra_state_attributes = {ATTR_COMMANDS: [code.name.lower() for code in RemoteKeyCode]}
+        self._attr_extra_state_attributes = {
+            ATTR_COMMANDS: [code.name.lower() for code in RemoteKeyCode]
+        }
 
     @property
     def available(self) -> bool:
         """Return True if entity is available."""
-        return bool(self.coordinator.data.power_on and self.coordinator.data.power_synced)
+        return bool(
+            self.coordinator.data.power_on and self.coordinator.data.power_synced
+        )
 
     @update_ha_state
     async def async_turn_on(self, **kwargs: Any) -> None:
@@ -82,5 +83,5 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
                 if not first:
                     await asyncio.sleep(delay_secs)
                 first = False
-    
+
                 await self.coordinator.api.remote_key(RemoteKeyCode[cmd.upper()])
