@@ -33,8 +33,6 @@ Remote control entity that supports the following commands. Check the `commands`
 
 >ch_plus, ch_minus, volume_plus, volume_minus, arrow_right, arrow_left, power, mute, input, sleep, tv_radio, number_0, number_1, number_2, number_3, number_4, number_5, number_6, number_7, number_8, number_9, q_view_flashback, fav, teletext, teletext_options, return_back, av_mode, caption_subtitle, arrow_up, arrow_down, my_apps, menu_settings, ok_enter, q_menu, list_minus, picture, sound, list, exit, pip, blue, yellow, green, red, aspect_ratio, audio_description, live_menu, user_guide, smart_home, simplink, forward, rewind, info, program_guide, play, stop_filelist, recent, freeze_slowplay_pause, soccer, rec, three_d, autoconfig, app, tv_pc
 
-Note that `repeat` and `delay` parameters in the servicecall are not supported
-
 ### Control lock switch
 
 Switch that enables/disables IR remote control according to the manual
@@ -47,13 +45,15 @@ Select that allows to select Energy Saving modes. Note that the entity is disabl
 
 If there is a need to send commands that are not supported one can use the "lg_tv_serial.send_raw" action. Check the LG documentation for the command formats.
 
+See example below, check out the developer tools in Home Assistant for more details.
+
 ```yaml
 action: lg_tv_serial.send_raw
 target:
   entity_id:
     - media_player.lg_tv
 data:
-  command1: j
-  command2: q
-  data: "01"
+  command1: k
+  command2: e
+  data0: "1"
 ```

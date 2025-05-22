@@ -1,4 +1,5 @@
 """LG TV API, this should really be in its own package, but not now"""
+
 import asyncio
 from dataclasses import dataclass
 from enum import IntEnum, unique
@@ -109,6 +110,7 @@ class Input(IntEnum):
     UNKNOWN = 0xFF
     """Unknown values in the enum are mapped to 0xFF"""
 
+
 @unique
 class Mode3D(IntEnum):
     ON = 0x00
@@ -136,6 +138,7 @@ class Config3D:
     right_to_left: bool
     depth: int
 
+
 @unique
 class EnergySaving(IntEnum):
     OFF = 0x00
@@ -144,12 +147,6 @@ class EnergySaving(IntEnum):
     MAXIMUM = 0x03
     AUTO = 0x04
     SCREEN_OFF = 0x05
-    UNKNOWN = 0xFF
-
-    @classmethod
-    def _missing_(cls, value):
-        logger.warning("Unknown value '%s' in %s", value, cls.__name__)
-        return cls.UNKNOWN
 
 
 @dataclass
@@ -244,8 +241,10 @@ class LgTv:
         It will _not_ be called when calling `close()` manually.
         """
         try:
-            (self._reader, self._writer) = await serial_asyncio_fast.open_serial_connection(
-                url=self._serial_url, baudrate=9600
+            (self._reader, self._writer) = (
+                await serial_asyncio_fast.open_serial_connection(
+                    url=self._serial_url, baudrate=9600
+                )
             )
 
             # Do something with the connection to make sure it can transfer data
@@ -307,7 +306,7 @@ class LgTv:
                         # logger.debug(data)
                         if data == b"":
                             raise ConnectionError("No data, connection lost")
-                        elif data == b' ' or data.isalnum():
+                        elif data == b" " or data.isalnum():
                             if data == END_MARKER:
                                 logger.debug("parsing data: %s" % response)
                                 result = parse_response(response)
@@ -315,7 +314,9 @@ class LgTv:
                                     # I have seen situations where somehow a response was in the buffer twice so everything got out of sync.
                                     # Not sure why it happens, just detect and pretend it was a connection error and hope it fixes itself
                                     # TODO: This needs some more robust handling
-                                    raise ConnectionError("Response not for command that was sent")
+                                    raise ConnectionError(
+                                        "Response not for command that was sent"
+                                    )
 
                                 return result
 
@@ -339,7 +340,7 @@ class LgTv:
                 # This can be thrown from asyncio, e.g. when Host is not reachable
                 # Not catching resulted in HA not giving up and huge logfile :/
                 logger.warning("OSError error", exc_info=True)
-                # Make it a connection error, since that is what the LG TV API 
+                # Make it a connection error, since that is what the LG TV API
                 # is "documented" to throw on issues (and will result in reload in HA)
                 raise ConnectionError from e
             except SerialException as e:
@@ -382,18 +383,6 @@ class LgTv:
         if response and response.status_ok:
             return response.data0
         return None
-
-    async def volume_up(self) -> None:
-        await self._do_command("m", "c", RemoteKeyCode.VOLUME_PLUS)
-
-    async def volume_down(self) -> None:
-        await self._do_command("m", "c", RemoteKeyCode.VOLUME_MINUS)
-
-    async def channel_up(self) -> None:
-        await self._do_command("m", "c", RemoteKeyCode.CH_PLUS)
-
-    async def channel_down(self) -> None:
-        await self._do_command("m", "c", RemoteKeyCode.CH_MINUS)
 
     async def remote_key(self, code: RemoteKeyCode) -> None:
         """Allows sending remote key codes, note that some key codes already have methods like `volume_up`"""
@@ -529,19 +518,25 @@ class LgTv:
         return None
 
     async def send_raw(
-        self, command1: str, command2: str, data: str
+        self, command1: str, command2: str, data: list[int | None]
     ) -> None:
-        # Split hexstring into bytes
-        bytes_list = [int(data[i:i+2], 16) for i in range(0, len(data), 2)]
-        # Pad to 6 elements (data0 to data5), fill with None if not enough
-        params = bytes_list + [None] * (6 - len(bytes_list))
-        if params[0] is None:
-            raise ValueError("At least one byte of data is required for send_raw")
-        await self._do_command(
-            command1, command2,
-            params[0], params[1], params[2], params[3], params[4], params[5]
-        )
+        data = list(data)  # Copy list to avoid modifying the original
 
+        if not (1 <= len(data) <= 6) or data[0] is None:
+            raise ValueError("Data must be a list of 1 to 6 bytes")
+
+        for idx, value in enumerate(data):
+            if value is not None and not (0 <= value <= 255):
+                raise ValueError(
+                    f"Data #{idx} value {value!r} must be between 0 and 255"
+                )
+
+        while len(data) < 6:
+            data.append(None)
+
+        await self._do_command(
+            command1, command2, data[0], data[1], data[2], data[3], data[4], data[5]
+        )
 
 
 async def main(serial_url: str):
