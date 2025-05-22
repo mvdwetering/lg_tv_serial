@@ -35,7 +35,7 @@ ENTITY_DESCRIPTIONS = [
         icon="mdi:leaf",  # type: ignore
         entity_category=EntityCategory.CONFIG,
         entity_registry_enabled_default = False,
-        options = [slugify(e.name) for e in EnergySaving if e.name != "UNKNOWN"],
+        options = [slugify(e.name) for e in EnergySaving],
         is_available=lambda api, coordinator_data: coordinator_data.energy_saving is not None and coordinator_data.power_on is True,
         select_option_fn = select_energy_saving
     ),

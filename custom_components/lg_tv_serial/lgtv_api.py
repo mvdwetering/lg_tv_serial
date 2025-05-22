@@ -144,13 +144,6 @@ class EnergySaving(IntEnum):
     MAXIMUM = 0x03
     AUTO = 0x04
     SCREEN_OFF = 0x05
-    UNKNOWN = 0xFF
-
-    @classmethod
-    def _missing_(cls, value):
-        logger.warning("Unknown value '%s' in %s", value, cls.__name__)
-        return cls.UNKNOWN
-
 
 @dataclass
 class Response:
@@ -382,18 +375,6 @@ class LgTv:
         if response and response.status_ok:
             return response.data0
         return None
-
-    async def volume_up(self) -> None:
-        await self._do_command("m", "c", RemoteKeyCode.VOLUME_PLUS)
-
-    async def volume_down(self) -> None:
-        await self._do_command("m", "c", RemoteKeyCode.VOLUME_MINUS)
-
-    async def channel_up(self) -> None:
-        await self._do_command("m", "c", RemoteKeyCode.CH_PLUS)
-
-    async def channel_down(self) -> None:
-        await self._do_command("m", "c", RemoteKeyCode.CH_MINUS)
 
     async def remote_key(self, code: RemoteKeyCode) -> None:
         """Allows sending remote key codes, note that some key codes already have methods like `volume_up`"""

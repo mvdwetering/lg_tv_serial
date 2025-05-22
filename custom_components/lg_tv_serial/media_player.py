@@ -17,7 +17,7 @@ from .helpers import update_ha_state
 
 from .const import DEFAULT_DEVICE_NAME, DOMAIN
 from .coordinator import LgTvCoordinator
-from .lgtv_api import Input
+from .lgtv_api import Input, RemoteKeyCode
 
 SUPPORTED_MEDIAPLAYER_COMMANDS = (
     MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF
@@ -139,14 +139,14 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     @update_ha_state
     async def async_volume_up(self) -> None:
         """Volume up media player."""
-        await self.coordinator.api.volume_up()
+        await self.coordinator.api.remote_key(RemoteKeyCode.VOLUME_PLUS)
         if self.coordinator.data.volume is not None:
             self.coordinator.data.volume = min(100, self.coordinator.data.volume + 1)
 
     @update_ha_state
     async def async_volume_down(self) -> None:
         """Volume down media player."""
-        await self.coordinator.api.volume_down()
+        await self.coordinator.api.remote_key(RemoteKeyCode.VOLUME_MINUS)
         if self.coordinator.data.volume is not None:
             self.coordinator.data.volume = max(0, self.coordinator.data.volume - 1)
 
