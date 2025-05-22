@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import time
 from typing import Any, Iterable
 
@@ -79,7 +80,7 @@ class LgTvRemote(CoordinatorEntity, RemoteEntity):
         for _ in range(num_repeats):
             for cmd in command:
                 if not first:
-                    time.sleep(delay_secs)
+                    await asyncio.sleep(delay_secs)
                 first = False
     
                 await self.coordinator.api.remote_key(RemoteKeyCode[cmd.upper()])
