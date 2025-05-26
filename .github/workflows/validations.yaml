@@ -1,0 +1,41 @@
+name: Validations
+
+on:
+  push:
+    branches:
+      - dev
+      - master  
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  validate:
+    runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        python-version: ["3.13"]
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      # Disable all for now
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -e .[dev]
+      # - name: Test with pytest
+      #   run: |
+      #     pytest
+      # - name: Check typing
+      #   run: |
+      #     mypy custom_components --check-untyped-defs
+      - name: Hassfest validation
+        uses: "home-assistant/actions/hassfest@master"
+      - name: HACS validation
+        uses: "hacs/action@main"
+        with:
+          category: "integration"
+          ignore: "brands"

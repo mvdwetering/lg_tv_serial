@@ -21,27 +21,27 @@ send_raw:
       selector:
         text:
     data1:
-      example: 
+      example: ""
       required: false
       selector:
         text:
     data2:
-      example: 
+      example: ""
       required: false
       selector:
         text:
     data3:
-      example: 
+      example: ""
       required: false
       selector:
         text:
     data4:
-      example: 
+      example: ""
       required: false
       selector:
         text:
     data5:
-      example: 
+      example: ""
       required: false
       selector:
         text:
