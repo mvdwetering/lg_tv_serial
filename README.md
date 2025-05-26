@@ -39,7 +39,7 @@ Switch that enables/disables IR remote control according to the manual
 
 ### Energy Saving select
 
-Select that allows to select Energy Saving modes. Note that the entity is disabled by default.
+Select entity that allows to select Energy Saving modes.
 
 ### Action for sending raw commands
 
