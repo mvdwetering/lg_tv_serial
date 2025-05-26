@@ -9,7 +9,7 @@
   "documentation": "https://github.com/mvdwetering/lg_tv_serial",
   "homekit": {},
   "integration_type": "device",
-  "issue_tracke": "https://github.com/mvdwetering/lg_tv_serial/issues",
+  "issue_tracker": "https://github.com/mvdwetering/lg_tv_serial/issues",
   "iot_class": "local_polling",
   "requirements": ["pyserial-asyncio-fast==0.16"],
   "ssdp": [],
