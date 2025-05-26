@@ -12,7 +12,7 @@ I am unsure for what range of TV models this applies, I have an older model from
 
 It takes a while for the TV to change actual state when turning on/off. This is indicated (a bit hacky) by using the state "Buffering". When state is ON it is safe to send other commands.
 
-Remote entity and control lock can not be used when the TV is Off, so these entities become unavailable to indicate that.
+Most entities can not be used when the TV is Off, so these entities become unavailable to indicate that.
 
 ## Features
 
