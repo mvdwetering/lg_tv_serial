@@ -9,10 +9,12 @@
   "documentation": "https://github.com/mvdwetering/lg_tv_serial",
   "homekit": {},
   "integration_type": "device",
-  "issues": "https://github.com/mvdwetering/lg_tv_serial/issues",
   "iot_class": "local_polling",
-  "requirements": ["pyserial-asyncio-fast==0.16"],
+  "issue_tracker": "https://github.com/mvdwetering/lg_tv_serial/issues",
+  "requirements": [
+    "pyserial-asyncio-fast==0.16"
+  ],
   "ssdp": [],
-  "version": "0.4.0",
+  "version": "0.4.1",
   "zeroconf": []
 }

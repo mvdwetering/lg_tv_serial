@@ -42,22 +42,50 @@
             }
         }
     },
+    "exceptions": {
+        "invalid_command_value": {
+            "message": "Invalid value for {command}. Should be a single character, got [{wrong_value}] instead."
+        },
+        "invalid_data_value": {
+            "message": "Invalid value for {data_byte}. Should be a value between 0 and 255, got [{wrong_value}] instead."
+        }
+    },
     "services": {
         "send_raw": {
             "name": "Send raw LG TV serial command",
-            "description": "Send raw commands to the TV, intended for debugging.",
+            "description": "Send raw commands to the TV. Intended for debugging. Check the command reference for more details.",
             "fields": {
                 "command1": {
                     "name": "Command 1",
-                    "description": "First command letter, called COMMAND1 in the documentation."
+                    "description": "First command letter."
                 },
                 "command2": {
                     "name": "Command 2",
-                    "description": "Second command letter, called COMMAND2 in the documentation."
+                    "description": "Second command letter."
                 },
-                "data": {
-                    "name": "Data",
-                    "description": "Data bytes to send, called DATA in the documentation. This is a hex string, e.g. 000102."
+                "data0": {
+                    "name": "Data 00",
+                    "description": "Data byte to send. Can be decimal, hexvalue or binary e.g. 3, 0x03 or 0b101."
+                },
+                "data1": {
+                    "name": "Data 01",
+                    "description": "Data byte to send. Can be decimal, hexvalue or binary e.g. 3, 0x03 or 0b101."
+                },
+                "data2": {
+                    "name": "Data 02",
+                    "description": "Data byte to send. Can be decimal, hexvalue or binary e.g. 3, 0x03 or 0b101."
+                },
+                "data3": {
+                    "name": "Data 03",
+                    "description": "Data byte to send. Can be decimal, hexvalue or binary e.g. 3, 0x03 or 0b101."
+                },
+                "data4": {
+                    "name": "Data 04",
+                    "description": "Data byte to send. Can be decimal, hexvalue or binary e.g. 3, 0x03 or 0b101."
+                },
+                "data5": {
+                    "name": "Data 05",
+                    "description": "Data byte to send. Can be decimal, hexvalue or binary e.g. 3, 0x03 or 0b101."
                 }
             }
         }
