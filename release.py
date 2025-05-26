@@ -11,7 +11,7 @@ import subprocess
 
 from awesomeversion import AwesomeVersion  # type: ignore[import]
 
-MASTER = "master"
+MASTER = "main"
 
 
 class ReleaseType(Enum):
