@@ -336,6 +336,12 @@ class LgTv:
                 logger.warning("Connection error", exc_info=True)
                 await self._close(True)
                 raise e
+            except SerialException as e:
+                logger.warning("Serial error", exc_info=True)
+                # Why try to close? Can result in more exceptions...
+                # Not sure what happens then
+                await self._close(True)
+                raise ConnectionError("Serial connection error") from e
             except OSError as e:
                 # This can be thrown from asyncio, e.g. when Host is not reachable
                 # Not catching resulted in HA not giving up and huge logfile :/
@@ -343,12 +349,6 @@ class LgTv:
                 # Make it a connection error, since that is what the LG TV API
                 # is "documented" to throw on issues (and will result in reload in HA)
                 raise ConnectionError from e
-            except SerialException as e:
-                logger.warning("Serial error", exc_info=True)
-                # Why try to close? Can result in more exceptions...
-                # Not sure what happens then
-                await self._close(True)
-                raise ConnectionError("Serial connection error") from e
 
             return None
 
