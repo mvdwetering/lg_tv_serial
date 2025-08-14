@@ -20,7 +20,7 @@ class LgTvSelectEntityDescription(SelectEntityDescription):
 
 async def select_energy_saving(api: LgTv, option:str) -> None:
     value = [
-        e.value
+        e
         for e in EnergySaving
         if slugify(e.name) == option
     ]
