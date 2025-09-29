@@ -7,9 +7,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.debounce import Debouncer
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
+    UpdateFailed
 )
 
-from .const import COORDINATOR_UPDATE_INTERVAL, LOGGER
+from .const import COORDINATOR_UPDATE_INTERVAL, DOMAIN, LOGGER
 from .lgtv_api import EnergySaving, LgTv, Input
 
 @dataclass
@@ -23,7 +24,7 @@ class CoordinatorData:
     power_synced:bool|None = None
 
 
-class LgTvCoordinator(DataUpdateCoordinator):
+class LgTvCoordinator(DataUpdateCoordinator[CoordinatorData]):
     """My custom coordinator."""
 
     def __init__(self, hass, entry:ConfigEntry, api: LgTv):
@@ -62,9 +63,11 @@ class LgTvCoordinator(DataUpdateCoordinator):
                 self.data.remote_control_lock = None
                 self.data.energy_saving = None
             self.data.power_synced = True
-        except ConnectionError:
-            LOGGER.debug("ConnectionError, reload integration", exc_info=True)
-            await self.hass.config_entries.async_reload(self.config_entry.entry_id)
+        except ConnectionError as error:
+            raise UpdateFailed(
+                translation_domain=DOMAIN,
+                translation_key="connection_error"
+            ) from error
 
         LOGGER.debug(self.data)
 

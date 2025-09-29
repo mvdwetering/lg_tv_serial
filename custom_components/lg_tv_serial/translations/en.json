@@ -48,6 +48,9 @@
         },
         "invalid_data_value": {
             "message": "Invalid value for {data_byte}. Should be a value between 0 and 255, got [{wrong_value}] instead."
+        },
+        "connection_error": {
+            "message": "An error occurred while communicating with the LG TV. Please check the connection."
         }
     },
     "services": {

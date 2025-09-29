@@ -14,9 +14,9 @@ from .coordinator import CoordinatorData, LgTvCoordinator
 from .lgtv_api import LgTv
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True)
 class LgTvSwitchEntityDescription(SwitchEntityDescription):
-    is_on: Callable[[CoordinatorData], bool] = None  # type: ignore[assignment]
+    is_on: Callable[[CoordinatorData], bool | None] = None  # type: ignore[assignment]
     turn_on: Callable[[LgTv, CoordinatorData], Coroutine] = None  # type: ignore[assignment]
     turn_off: Callable[[LgTv, CoordinatorData], Coroutine] = None  # type: ignore[assignment]
     is_supported: Callable[[LgTv, CoordinatorData], bool] = lambda api, data: True
@@ -64,7 +64,6 @@ class LgTvSwitch(CoordinatorEntity, SwitchEntity):
         entity_description: LgTvSwitchEntityDescription,
     ):
         super().__init__(coordinator)
-        self.coordinator: LgTvCoordinator
 
         self.entity_description: LgTvSwitchEntityDescription = entity_description
         self._attr_translation_key = self.entity_description.key
