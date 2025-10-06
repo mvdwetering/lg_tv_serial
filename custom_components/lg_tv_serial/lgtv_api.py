@@ -511,7 +511,7 @@ class LgTv:
     #     response = await self._do_command("x", "t", 0xFF)
     #     if response and response.status_ok:
     #       return Config3D(Mode3D(response.data0), Encoding3D(response.data1), response.data2==1, response.data3)
-    #    return None
+    #     return None
 
     async def set_energy_saving(self, value: EnergySaving) -> None:
         await self._do_command("j", "q", value)
@@ -569,6 +569,7 @@ async def main(serial_url: str):
         print(f"{await tv.get_sharpness()=}")
         print(f"{await tv.get_remote_control_lock()=}")
         print(f"{await tv.get_energy_saving()=}")
+        # print(f"{await tv.get_3d()=}")
 
         # await tv.send_raw("k", "e", "01")
         # print(f"{await tv.get_mute()=}")
