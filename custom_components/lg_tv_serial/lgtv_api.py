@@ -215,9 +215,14 @@ def parse_response(reponse: bytearray) -> Response | None:
             logger.warning("Status is '%s', not 'OK', for response: %s", match.group("status"), reponse)
             return None
         
-        data0 = int(match.group("data"), 16)
-
-        return Response(cmd2, set_id, status_ok, data0)
+        data = match.group("data")
+        data_bytes = [int(data[i:i+2], 16) for i in range(0, min(len(data), 12), 2)]
+        return Response(
+            cmd2,
+            set_id,
+            status_ok,
+            *data_bytes
+        )
     except Exception as e:
         logger.error("Could not parse data from %s" % reponse)
         raise e
