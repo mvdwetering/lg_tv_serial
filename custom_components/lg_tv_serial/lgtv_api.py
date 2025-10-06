@@ -210,6 +210,11 @@ def parse_response(reponse: bytearray) -> Response | None:
         cmd2 = match.group("cmd2")
         set_id = int(match.group("set_id"), 16)
         status_ok = match.group("status") == "OK"
+
+        if not status_ok:
+            logger.warning("Status is '%s', not 'OK', for response: %s", match.group("status"), reponse)
+            return None
+        
         data0 = int(match.group("data"), 16)
 
         return Response(cmd2, set_id, status_ok, data0)
