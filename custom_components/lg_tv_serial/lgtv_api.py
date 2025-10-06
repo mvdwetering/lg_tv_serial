@@ -385,7 +385,7 @@ class LgTv:
         return None
 
     async def remote_key(self, code: RemoteKeyCode) -> None:
-        """Allows sending remote key codes, note that some key codes already have methods like `volume_up`"""
+        """Allows sending remote key codes"""
         await self._do_command("m", "c", code)
 
     async def set_contrast(self, value: int) -> None:
