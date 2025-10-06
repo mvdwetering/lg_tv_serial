@@ -210,9 +210,19 @@ def parse_response(reponse: bytearray) -> Response | None:
         cmd2 = match.group("cmd2")
         set_id = int(match.group("set_id"), 16)
         status_ok = match.group("status") == "OK"
-        data0 = int(match.group("data"), 16)
 
-        return Response(cmd2, set_id, status_ok, data0)
+        if not status_ok:
+            logger.warning("Status is '%s', not 'OK', for response: %s", match.group("status"), reponse)
+            return None
+        
+        data = match.group("data")
+        data_bytes = [int(data[i:i+2], 16) for i in range(0, min(len(data), 12), 2)]
+        return Response(
+            cmd2,
+            set_id,
+            status_ok,
+            *data_bytes
+        )
     except Exception as e:
         logger.error("Could not parse data from %s" % reponse)
         raise e
@@ -385,7 +395,7 @@ class LgTv:
         return None
 
     async def remote_key(self, code: RemoteKeyCode) -> None:
-        """Allows sending remote key codes, note that some key codes already have methods like `volume_up`"""
+        """Allows sending remote key codes"""
         await self._do_command("m", "c", code)
 
     async def set_contrast(self, value: int) -> None:
@@ -506,7 +516,7 @@ class LgTv:
     #     response = await self._do_command("x", "t", 0xFF)
     #     if response and response.status_ok:
     #       return Config3D(Mode3D(response.data0), Encoding3D(response.data1), response.data2==1, response.data3)
-    #    return None
+    #     return None
 
     async def set_energy_saving(self, value: EnergySaving) -> None:
         await self._do_command("j", "q", value)
@@ -564,6 +574,7 @@ async def main(serial_url: str):
         print(f"{await tv.get_sharpness()=}")
         print(f"{await tv.get_remote_control_lock()=}")
         print(f"{await tv.get_energy_saving()=}")
+        # print(f"{await tv.get_3d()=}")
 
         # await tv.send_raw("k", "e", "01")
         # print(f"{await tv.get_mute()=}")
