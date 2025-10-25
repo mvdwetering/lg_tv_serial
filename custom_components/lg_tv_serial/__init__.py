@@ -147,9 +147,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         await api.connect(on_disconnect)
-        # Do something with the connection to make sure it can transfer data
-        if await api.get_power_on() is None:
-            raise ConfigEntryNotReady(f"Could not get data from LG TV: {entry.title}")
 
         coordinator = LgTvCoordinator(hass, entry, api)
         await coordinator.async_config_entry_first_refresh()
