@@ -8,6 +8,14 @@ DOMAIN = "lg_tv_serial"
 
 SERIAL_URL = "serial_url"
 
+SET_ID = "set_id"
+
+RTSCTS = "rtscts"
+
+DSRDTR = "dsrdtr"
+
+XONXOFF = "xonxoff"
+
 ATTR_COMMANDS = "commands"
 
 SERVICE_SEND_RAW = "send_raw"
