@@ -58,6 +58,10 @@
             "name": "Send raw LG TV serial command",
             "description": "Send raw commands to the TV. Intended for debugging. Check the command reference for more details.",
             "fields": {
+                "config_entry": {
+                    "name": "TV",
+                    "description": "TV configuration to send the command to."
+                },
                 "command1": {
                     "name": "Command 1",
                     "description": "First command letter."
