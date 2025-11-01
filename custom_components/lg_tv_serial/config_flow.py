@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
 
-from .const import DOMAIN, SERIAL_URL
+from .const import DOMAIN, SERIAL_URL, SET_ID, RTSCTS, DSRDTR, XONXOFF
 from .lgtv_api import LgTv
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,6 +19,10 @@ _LOGGER = logging.getLogger(__name__)
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(SERIAL_URL): str,
+        vol.Optional(SET_ID, default=0): vol.All(int, vol.Range(min=0, max=99)),
+        vol.Optional(RTSCTS, default=False): bool,
+        vol.Optional(DSRDTR, default=False): bool,
+        vol.Optional(XONXOFF, default=False): bool,
     }
 )
 
@@ -29,7 +33,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
     try:
-        async with LgTv(data[SERIAL_URL]) as api:
+        async with LgTv(data[SERIAL_URL], data[SET_ID], data[RTSCTS], data[DSRDTR], data[XONXOFF]) as api:
             await api.connect()
             if await api.get_power_on() is None:
                 raise CannotConnect("No response from LG TV")
