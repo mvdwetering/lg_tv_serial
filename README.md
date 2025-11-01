@@ -49,10 +49,8 @@ See example below, check out the developer tools in Home Assistant for more deta
 
 ```yaml
 action: lg_tv_serial.send_raw
-target:
-  entity_id:
-    - media_player.lg_tv
 data:
+  config_entry: 84bcdb836062423ee2c8abd7a9ed444e
   command1: k
   command2: e
   data0: "1"
@@ -62,7 +60,7 @@ data:
 
 ### Home Assistant Community Store (HACS)
 
-*Recommended as you get notifications of updates*
+*Recommended because you get notifications of updates*
 
 HACS is a 3rd party downloader for Home Assistant to easily install and update custom integrations made by the community. More information and installation instructions can be found on their site https://hacs.xyz/
 
