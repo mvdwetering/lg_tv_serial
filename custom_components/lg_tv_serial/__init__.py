@@ -6,9 +6,7 @@ from homeassistant.config_entries import ConfigEntry, OperationNotAllowed
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback, ServiceCall
 from homeassistant.exceptions import ConfigEntryNotReady, ServiceValidationError
-from homeassistant.helpers.service import async_extract_config_entry_ids
 from homeassistant.helpers.typing import ConfigType
-from homeassistant.helpers.config_validation import make_entity_service_schema
 
 
 from .const import (
