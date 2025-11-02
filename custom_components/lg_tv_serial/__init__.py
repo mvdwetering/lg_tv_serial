@@ -90,12 +90,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
                         data.append(parsed_value)
                     else:
                         raise ValueError
-                except (TypeError, ValueError):
+                except (TypeError, ValueError) as e:
                     raise ServiceValidationError(
                         translation_domain=DOMAIN,
                         translation_key="invalid_data_value",
                         translation_placeholders={"data_byte": attr, "wrong_value": value},
-                    )
+                    ) from e
 
         coordinator: LgTvCoordinator = hass.data[DOMAIN][
             config_entry.entry_id
@@ -156,7 +156,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         return True
     except ConnectionError as e:
-        raise ConfigEntryNotReady(f"Could not connect to LG TV: {entry.title}")
+        raise ConfigEntryNotReady(f"Could not connect to LG TV: {entry.title}") from e
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
