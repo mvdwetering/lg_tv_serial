@@ -34,7 +34,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
             if await api.get_power_on() is None:
                 raise CannotConnect("No response from LG TV")
     except ConnectionError as e:
-        raise CannotConnect("Could not connect to LG TV, check port settings")
+        raise CannotConnect("Could not connect to LG TV, check port settings") from e
     
     return {"title": "LG TV"}
 
