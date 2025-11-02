@@ -20,6 +20,7 @@ ATTR_COMMANDS = "commands"
 
 SERVICE_SEND_RAW = "send_raw"
 
+ATTR_CONFIG_ENTRY = "config_entry"
 ATTR_COMMAND_1 = "command1"
 ATTR_COMMAND_2 = "command2"
 ATTR_DATA_0 = "data0"

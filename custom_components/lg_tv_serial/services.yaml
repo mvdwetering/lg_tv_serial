@@ -1,10 +1,10 @@
 send_raw:
-  target:
-    device:
-      integration: lg_tv_serial
-    entity:
-      integration: lg_tv_serial
   fields:
+    config_entry:
+      required: true
+      selector:
+        config_entry:
+          integration: lg_tv_serial
     command1:
       example: k
       required: true
