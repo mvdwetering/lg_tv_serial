@@ -46,54 +46,61 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         Send raw command to the TV
         """
 
-        if config_entry := hass.config_entries.async_get_entry(call.data.get(ATTR_CONFIG_ENTRY)):
+        config_entry = hass.config_entries.async_get_entry(call.data.get(ATTR_CONFIG_ENTRY))
 
-            command1 = call.data.get(ATTR_COMMAND_1)
-            if len(command1) != 1:
-                raise ServiceValidationError(
-                    translation_domain=DOMAIN,
-                    translation_key="invalid_command_value",
-                    translation_placeholders={"command": ATTR_COMMAND_1, "wrong_value": command1},
-                )
+        if config_entry is None:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="config_entry_not_found",
+                translation_placeholders={"config_entry": call.data.get(ATTR_CONFIG_ENTRY)},
+            )
 
-            command2 = call.data.get(ATTR_COMMAND_2)
-            if len(command2) != 1:
-                raise ServiceValidationError(
-                    translation_domain=DOMAIN,
-                    translation_key="invalid_command_value",
-                    translation_placeholders={"command": ATTR_COMMAND_2, "wrong_value": command2},
-                )
+        command1 = call.data.get(ATTR_COMMAND_1)
+        if len(command1) != 1:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="invalid_command_value",
+                translation_placeholders={"command": ATTR_COMMAND_1, "wrong_value": command1},
+            )
 
-            data: list[int | None] = []
-            for attr in [
-                ATTR_DATA_0,
-                ATTR_DATA_1,
-                ATTR_DATA_2,
-                ATTR_DATA_3,
-                ATTR_DATA_4,
-                ATTR_DATA_5,
-            ]:
-                value = call.data.get(attr)
-                if value is None:
-                    data.append(None)
-                else:
-                    try:
-                        parsed_value = int(str(value).strip(), 0)  # 0 = auto base
-                        if 0 <= parsed_value <= 255:
-                            data.append(parsed_value)
-                        else:
-                            raise ValueError
-                    except (TypeError, ValueError):
-                        raise ServiceValidationError(
-                            translation_domain=DOMAIN,
-                            translation_key="invalid_data_value",
-                            translation_placeholders={"data_byte": attr, "wrong_value": value},
-                        )
+        command2 = call.data.get(ATTR_COMMAND_2)
+        if len(command2) != 1:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="invalid_command_value",
+                translation_placeholders={"command": ATTR_COMMAND_2, "wrong_value": command2},
+            )
 
-            coordinator: LgTvCoordinator = hass.data[DOMAIN][
-                config_entry.entry_id
-            ]
-            await coordinator.api.send_raw(command1, command2, data)
+        data: list[int | None] = []
+        for attr in [
+            ATTR_DATA_0,
+            ATTR_DATA_1,
+            ATTR_DATA_2,
+            ATTR_DATA_3,
+            ATTR_DATA_4,
+            ATTR_DATA_5,
+        ]:
+            value = call.data.get(attr)
+            if value is None:
+                data.append(None)
+            else:
+                try:
+                    parsed_value = int(str(value).strip(), 0)  # 0 = auto base
+                    if 0 <= parsed_value <= 255:
+                        data.append(parsed_value)
+                    else:
+                        raise ValueError
+                except (TypeError, ValueError):
+                    raise ServiceValidationError(
+                        translation_domain=DOMAIN,
+                        translation_key="invalid_data_value",
+                        translation_placeholders={"data_byte": attr, "wrong_value": value},
+                    )
+
+        coordinator: LgTvCoordinator = hass.data[DOMAIN][
+            config_entry.entry_id
+        ]
+        await coordinator.api.send_raw(command1, command2, data)
 
     hass.services.async_register(
         DOMAIN,
