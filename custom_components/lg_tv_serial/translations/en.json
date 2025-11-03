@@ -13,7 +13,7 @@
                 "description": "The serial port can be a normal serial port like '/dev/ttyUSB0', but can also be any [URL handler as supported by PySerial](https://pyserial.readthedocs.io/en/latest/url_handlers.html).\n\nThis can come in handy when addressing USB adapters by serial with `hwgrep://` or use `rfc2217://hostname_or_ip` to connect through an rfc2217 compatible server for more advanced usecases.",
                 "data": {
                     "serial_url": "Serial port e.g. /dev/ttyUSB0",
-                    "set_id": "TV id number (optional)",
+                    "set_id": "TV ID number (optional)",
                     "rtscts": "Enable RTS/CTS hardware flow control (optional)",
                     "dsrdtr": "Enable DSR/DTR hardware flow control (optional)",
                     "xonxoff": "Enable XON/XOFF software flow control (optional)"
