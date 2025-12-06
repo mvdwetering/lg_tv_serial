@@ -231,9 +231,12 @@ def parse_response(reponse: bytearray) -> Response | None:
 class LgTv:
     """Control an LG TV with serial port."""
 
-    def __init__(self, serial_url, set_id=0) -> None:
+    def __init__(self, serial_url, set_id=0, rtscts=False, dsrdtr=False, xonxoff=False) -> None:
         self._serial_url = serial_url
         self._set_id = set_id
+        self._rtscts = rtscts
+        self._dsrdtr = dsrdtr
+        self._xonxoff = xonxoff
         self._lock = asyncio.Lock()
         self._on_disconnect = None
         self._writer: asyncio.StreamWriter | None = None
@@ -253,7 +256,8 @@ class LgTv:
         try:
             (self._reader, self._writer) = (
                 await serial_asyncio_fast.open_serial_connection(
-                    url=self._serial_url, baudrate=9600
+                    url=self._serial_url, baudrate=9600,
+                    rtscts=self._rtscts, dsrdtr=self._dsrdtr, xonxoff=self._xonxoff
                 )
             )
 
@@ -549,8 +553,8 @@ class LgTv:
         )
 
 
-async def main(serial_url: str):
-    async with LgTv(serial_url) as tv:
+async def main(serial_url: str, set_id: int = 0, rtscts: bool = False, dsrdtr: bool = False, xonxoff: bool = False):
+    async with LgTv(serial_url, set_id, rtscts, dsrdtr, xonxoff) as tv:
         await tv.connect()
 
         print("--- Current power state")
