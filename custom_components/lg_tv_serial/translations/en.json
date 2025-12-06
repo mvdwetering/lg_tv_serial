@@ -15,8 +15,7 @@
                     "serial_url": "Serial port e.g. /dev/ttyUSB0",
                     "set_id": "TV ID number (optional)",
                     "rtscts": "Enable RTS/CTS hardware flow control (optional)",
-                    "dsrdtr": "Enable DSR/DTR hardware flow control (optional)",
-                    "xonxoff": "Enable XON/XOFF software flow control (optional)"
+                    "dsrdtr": "Enable DSR/DTR hardware flow control (optional)"
                 }
             }
         }
