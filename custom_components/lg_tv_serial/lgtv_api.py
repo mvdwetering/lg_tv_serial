@@ -600,6 +600,8 @@ if __name__ == "__main__":
         help="Set ID to use, default is 0 to address any TV (0-99)",
         default=0,
         type=int,
+        choices=range(0, 100),
+        metavar="SET_ID",
     )
     parser.add_argument(
         "--rtscts",
