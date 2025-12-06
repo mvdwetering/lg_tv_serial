@@ -133,7 +133,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.data.get("set_id", 0),
         entry.data.get("rtscts", False),
         entry.data.get("dsrdtr", False),
-        entry.data.get("xonxoff", False)
     )
 
     @callback
