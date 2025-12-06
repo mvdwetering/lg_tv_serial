@@ -1,5 +1,6 @@
 """LG TV API, this should really be in its own package, but not now"""
 
+import argparse
 import asyncio
 from dataclasses import dataclass
 from enum import IntEnum, unique
@@ -552,7 +553,7 @@ class LgTv:
         )
 
 
-async def main(serial_url: str, set_id: int = 0, rtscts: bool = False, dsrdtr: bool = False):
+async def main(serial_url: str, set_id: int, rtscts: bool, dsrdtr: bool):
     async with LgTv(serial_url, set_id, rtscts, dsrdtr) as tv:
         await tv.connect()
 
@@ -586,14 +587,37 @@ async def main(serial_url: str, set_id: int = 0, rtscts: bool = False, dsrdtr: b
 
 
 if __name__ == "__main__":
-    if len(sys.argv) <= 1:
-        print("Must provide a serial_url parameter like:")
-        print("  COM3")
-        print("  /dev/ttyUSB0")
-        print("  socket://192.168.178.42:10003")
-        exit(1)
 
-    logging.basicConfig(level="INFO")
-    # logging.basicConfig(level="DEBUG")
+    parser = argparse.ArgumentParser(
+        description="Manual test for LGTV API"
+    )
+    parser.add_argument(
+        "serial_url",
+        help="Can be a devicename like COM3, /dev/ttyUSB0 or use socket://192.168.178.42:10003 for IP based connections.",
+    )
+    parser.add_argument(
+        "--set_id",
+        help="Set ID to use, default is 0 to address any TV (0-99)",
+        default=0,
+        type=int,
+    )
+    parser.add_argument(
+        "--rtscts",
+        action="store_true",
+        help="Enable RTS/CTS.",
+    )
+    parser.add_argument(
+        "--dsrdtr",
+        action="store_true",
+        help="Enable DSR/DTR.",
+    )
+    parser.add_argument(
+        "--loglevel",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        default="INFO",
+        help="Define loglevel, default is INFO.",
+    )
+    args = parser.parse_args()
+    logging.basicConfig(level=args.loglevel)
 
-    asyncio.run(main(sys.argv[1]))
+    asyncio.run(main(args.serial_url, set_id=args.set_id, rtscts=args.rtscts, dsrdtr=args.dsrdtr))
