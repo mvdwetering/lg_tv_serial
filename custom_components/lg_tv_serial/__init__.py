@@ -128,7 +128,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})
 
-    api = LgTv(entry.data["serial_url"])
+    api = LgTv(
+        entry.data["serial_url"],
+        entry.data.get("set_id", 0),
+        entry.data.get("rtscts", False),
+        entry.data.get("dsrdtr", False),
+    )
 
     @callback
     async def on_disconnect():
