@@ -1,4 +1,5 @@
 """Config flow for LG TV Serial integration."""
+
 from __future__ import annotations
 
 import logging
@@ -9,6 +10,7 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import selector
 
 
 from .const import DOMAIN, SERIAL_URL, SET_ID, RTSCTS, DSRDTR
@@ -19,9 +21,16 @@ _LOGGER = logging.getLogger(__name__)
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(SERIAL_URL): str,
-        vol.Optional(SET_ID, default=0): vol.All(int, vol.Range(min=0, max=99)),
-        vol.Optional(RTSCTS, default=False): bool,
-        vol.Optional(DSRDTR, default=False): bool,
+        vol.Required(SET_ID, default=0): vol.All(
+            selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=0, max=99, mode=selector.NumberSelectorMode.BOX
+                ),
+            ),
+            vol.Coerce(int),
+        ),
+        vol.Required(RTSCTS, default=False): bool,
+        vol.Required(DSRDTR, default=False): bool,
     }
 )
 
@@ -32,13 +41,15 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
     try:
-        async with LgTv(data[SERIAL_URL], data[SET_ID], data[RTSCTS], data[DSRDTR]) as api:
+        async with LgTv(
+            data[SERIAL_URL], data[SET_ID], data[RTSCTS], data[DSRDTR]
+        ) as api:
             await api.connect()
             if await api.get_power_on() is None:
                 raise CannotConnect("No response from LG TV")
     except ConnectionError as e:
         raise CannotConnect("Could not connect to LG TV, check port settings") from e
-    
+
     return {"title": "LG TV"}
 
 
