@@ -17,6 +17,9 @@ from .const import DOMAIN, SERIAL_URL, SET_ID, RTSCTS, DSRDTR
 from .lgtv_api import LgTv
 
 _LOGGER = logging.getLogger(__name__)
+PYSERIAL_URL_HANDLERS_DOC = (
+    "https://pyserial.readthedocs.io/en/latest/url_handlers.html"
+)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
@@ -77,7 +80,10 @@ class LgTvConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(title=info["title"], data=user_input)
 
         return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=STEP_USER_DATA_SCHEMA,
+            errors=errors,
+            description_placeholders={"pyserial_url": PYSERIAL_URL_HANDLERS_DOC},
         )
 
 
