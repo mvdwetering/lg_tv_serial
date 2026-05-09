@@ -7,9 +7,8 @@ from enum import IntEnum, unique
 import logging
 import re
 import sys
-from serial import SerialException  # type: ignore
 
-import serial_asyncio_fast  # type: ignore
+import serialx  # type: ignore
 
 
 logger = logging.getLogger(__name__)
@@ -255,7 +254,7 @@ class LgTv:
         """
         try:
             (self._reader, self._writer) = (
-                await serial_asyncio_fast.open_serial_connection(
+                await serialx.open_serial_connection(
                     url=self._serial_url, baudrate=9600,
                     rtscts=self._rtscts, dsrdtr=self._dsrdtr
                 )
@@ -266,7 +265,7 @@ class LgTv:
 
             # Only install on_disconnect after connection seems to work to avoid triggering it while not really connected
             self._on_disconnect = on_disconnect
-        except SerialException:
+        except (OSError, IOError):
             raise ConnectionError("Could not connect to LG TV, check the port settings")
 
     async def close(self):
@@ -282,7 +281,7 @@ class LgTv:
                 await self._writer.wait_closed()
             except ConnectionError:
                 logger.debug("Connection error while closing", exc_info=True)
-            except SerialException:
+            except (OSError, IOError):
                 logger.debug("Serial exception error while closing", exc_info=True)
 
     async def _do_command(
@@ -350,7 +349,7 @@ class LgTv:
                 logger.warning("Connection error", exc_info=True)
                 await self._close(True)
                 raise e
-            except SerialException as e:
+            except (OSError, IOError) as e:
                 logger.warning("Serial error", exc_info=True)
                 # Why try to close? Can result in more exceptions...
                 # Not sure what happens then
