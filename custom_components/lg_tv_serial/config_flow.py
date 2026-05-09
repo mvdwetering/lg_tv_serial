@@ -27,7 +27,7 @@ ESPHOME_SERIAL_PROXY_DOC = (
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(SERIAL_URL): str,
+        vol.Required(SERIAL_URL): selector.SerialPortSelector(),
         vol.Required(SET_ID, default=0): vol.All(
             selector.NumberSelector(
                 selector.NumberSelectorConfig(
