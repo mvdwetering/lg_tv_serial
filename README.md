@@ -16,7 +16,7 @@ Most entities can not be used when the TV is Off, so these entities become unava
 
 ## Features
 
-Connect through serial or any [URL handler supported by PySerial](https://pyserial.readthedocs.io/en/latest/url_handlers.html) this makes it possible to connect through networked tcp-2-serial solutions so your TV does not have to be connected directly to your Home Assistant machine.
+Connect through serial or any [URL handler supported by serialx](https://puddly.github.io/serialx/index.html) this makes it possible to connect through networked tcp-2-serial solutions so your TV does not have to be connected directly to your Home Assistant machine.
 
 ### Mediaplayer
 
