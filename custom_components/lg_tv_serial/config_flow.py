@@ -18,9 +18,16 @@ from .lgtv_api import LgTv
 
 _LOGGER = logging.getLogger(__name__)
 
+SERIALX_URL_HANDLERS_DOC = (
+    "https://puddly.github.io/serialx/index.html"
+)
+ESPHOME_SERIAL_PROXY_DOC = (
+    "https://esphome.io/components/serial_proxy/"
+)
+
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(SERIAL_URL): str,
+        vol.Required(SERIAL_URL): selector.SerialPortSelector(),
         vol.Required(SET_ID, default=0): vol.All(
             selector.NumberSelector(
                 selector.NumberSelectorConfig(
@@ -77,7 +84,10 @@ class LgTvConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(title=info["title"], data=user_input)
 
         return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=STEP_USER_DATA_SCHEMA,
+            errors=errors,
+            description_placeholders={"serialx_url": SERIALX_URL_HANDLERS_DOC, "esphome_url": ESPHOME_SERIAL_PROXY_DOC},
         )
 
 
