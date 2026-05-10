@@ -7,9 +7,9 @@ from enum import IntEnum, unique
 import logging
 import re
 import sys
-from serial import SerialException  # type: ignore
+from serialx import SerialException
 
-import serial_asyncio_fast  # type: ignore
+import serialx
 
 
 logger = logging.getLogger(__name__)
@@ -255,7 +255,7 @@ class LgTv:
         """
         try:
             (self._reader, self._writer) = (
-                await serial_asyncio_fast.open_serial_connection(
+                await serialx.open_serial_connection(
                     url=self._serial_url, baudrate=9600,
                     rtscts=self._rtscts, dsrdtr=self._dsrdtr
                 )
@@ -266,8 +266,8 @@ class LgTv:
 
             # Only install on_disconnect after connection seems to work to avoid triggering it while not really connected
             self._on_disconnect = on_disconnect
-        except SerialException:
-            raise ConnectionError("Could not connect to LG TV, check the port settings")
+        except (SerialException, OSError) as e:
+            raise ConnectionError("Could not connect to LG TV, check the port settings") from e
 
     async def close(self):
         await self._close(False)
@@ -282,7 +282,7 @@ class LgTv:
                 await self._writer.wait_closed()
             except ConnectionError:
                 logger.debug("Connection error while closing", exc_info=True)
-            except SerialException:
+            except (SerialException, OSError):
                 logger.debug("Serial exception error while closing", exc_info=True)
 
     async def _do_command(
@@ -350,19 +350,12 @@ class LgTv:
                 logger.warning("Connection error", exc_info=True)
                 await self._close(True)
                 raise e
-            except SerialException as e:
+            except (SerialException, OSError) as e:
                 logger.warning("Serial error", exc_info=True)
                 # Why try to close? Can result in more exceptions...
                 # Not sure what happens then
                 await self._close(True)
                 raise ConnectionError("Serial connection error") from e
-            except OSError as e:
-                # This can be thrown from asyncio, e.g. when Host is not reachable
-                # Not catching resulted in HA not giving up and huge logfile :/
-                logger.warning("OSError error", exc_info=True)
-                # Make it a connection error, since that is what the LG TV API
-                # is "documented" to throw on issues (and will result in reload in HA)
-                raise ConnectionError from e
 
             return None
 

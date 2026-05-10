@@ -17,13 +17,17 @@ from .const import DOMAIN, SERIAL_URL, SET_ID, RTSCTS, DSRDTR
 from .lgtv_api import LgTv
 
 _LOGGER = logging.getLogger(__name__)
-PYSERIAL_URL_HANDLERS_DOC = (
-    "https://pyserial.readthedocs.io/en/latest/url_handlers.html"
+
+SERIALX_URL_HANDLERS_DOC = (
+    "https://puddly.github.io/serialx/index.html"
+)
+ESPHOME_SERIAL_PROXY_DOC = (
+    "https://esphome.io/components/serial_proxy/"
 )
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(SERIAL_URL): str,
+        vol.Required(SERIAL_URL): selector.SerialPortSelector(),
         vol.Required(SET_ID, default=0): vol.All(
             selector.NumberSelector(
                 selector.NumberSelectorConfig(
@@ -83,7 +87,7 @@ class LgTvConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
-            description_placeholders={"pyserial_url": PYSERIAL_URL_HANDLERS_DOC},
+            description_placeholders={"serialx_url": SERIALX_URL_HANDLERS_DOC, "esphome_url": ESPHOME_SERIAL_PROXY_DOC},
         )
 
 
