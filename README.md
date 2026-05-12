@@ -6,7 +6,7 @@ The protocol is [documented by LG here](https://www.lg.com/ca_en/support/product
 
 This is a quickly whipped up integration but seems to work fine for me for a while now (mostly to just turn on/off the TV).
 
-I am unsure for what range of TV models this applies, I have an older model from 2011 which has a DB9 serial connector for this protocol. Check the owners manual of your TV (downloadable from LG website) to see if it supports this protocol.
+I am unsure for what range of TV models this applies, I have a 42LW5400 model from 2011 which has a DB9 serial connector for this protocol. Check the owners manual of your TV (downloadable from LG website) to see if it supports this protocol.
 
 ## Gotchas
 
