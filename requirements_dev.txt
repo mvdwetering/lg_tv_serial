@@ -1,6 +1,7 @@
 -r requirements.txt
 
 mypy>=1.4.0
+windows-curses; sys_platform == "win32"
 
 homeassistant==2026.5.0
 homeassistant-stubs
