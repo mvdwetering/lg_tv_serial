@@ -22,6 +22,21 @@
                     "rtscts": "Only enable if you have a fully wired serial cable.",
                     "dsrdtr": "Only enable if you have a fully wired serial cable."
                 }
+            },
+            "reconfigure": {
+                "title": "Reconfigure LG TV Serial",
+                "description": "The serial port can be a normal serial port like '/dev/ttyUSB0', but can also be any [URL handler as supported by serialx]({serialx_url}).\n\nYou can use an [ESPHome serial proxy]({esphome_url}), or use `socket://host:port` / `rfc2217://host:port` to connect to eg. ser2net or generic serial-over-ethernet hardware.",
+                "data": {
+                    "serial_url": "Serial port e.g. /dev/ttyUSB0",
+                    "set_id": "Set ID",
+                    "rtscts": "Enable RTS/CTS hardware flow control",
+                    "dsrdtr": "Enable DSR/DTR hardware flow control"
+                },
+                "data_description": {
+                    "set_id": "Use Set ID 0 to address any TV regardless of configured Set ID in the TV.",
+                    "rtscts": "Only enable if you have a fully wired serial cable.",
+                    "dsrdtr": "Only enable if you have a fully wired serial cable."
+                }
             }
         }
     },
