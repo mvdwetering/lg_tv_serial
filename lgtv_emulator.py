@@ -85,9 +85,8 @@ MODE_3D_NAMES: dict[int, str] = {
     0x03: "2D→3D",
 }
 
-# Real LG TVs take ~15 seconds to boot after power-on and don't respond during this time
-# (observed behavior: 3x 5-second timeouts before responding, suggesting ~15-17s boot time)
-BOOT_DELAY = 15.0
+# Real LG TVs take a bit to boot after power-on and don't respond during this time
+BOOT_DELAY = 7.0
 
 # ── TV state ──────────────────────────────────────────────────────────────────
 
@@ -132,7 +131,7 @@ class TvState:
     # UI state (not part of TV protocol)
     clients_connected: int = 0
     last_command: str = "(none)"
-    last_command_count: int = 0  # Track consecutive repeats of same command
+    total_commands_received: int = 0  # Commands received from socket
     show_help: bool = False
     power_on_time: float | None = None  # Timestamp when power-on was initiated
 
@@ -412,13 +411,6 @@ def _dispatch_command(
 ) -> bytes | None:
     cmd_key = f"{cmd1}{cmd2}"
     
-    # Track command repeats
-    if cmd_key == getattr(state, "_last_cmd_key", ""):
-        state.last_command_count += 1
-    else:
-        state.last_command_count = 1
-    state._last_cmd_key = cmd_key  # type: ignore[attr-defined]
-    
     # Real LG TVs take time to boot after power-on and don't respond during this time.
     # Return None (no response) to simulate timeout on the client side.
     if state.power_on_time is not None and time.time() - state.power_on_time < BOOT_DELAY:
@@ -484,6 +476,7 @@ async def _handle_client(
                 if response is not None:
                     writer.write(response)
                     await writer.drain()
+                state.total_commands_received += 1
     except (ConnectionError, asyncio.IncompleteReadError, OSError):
         pass
     finally:
@@ -637,10 +630,11 @@ def _draw_ui(
     _safe_addstr(stdscr, row, 2, "Clients: ", color_label)
     _safe_addstr(stdscr, row, 11, str(state.clients_connected), clients_attr)
     
-    # Show command repeat count
-    repeat_str = f" (×{state.last_command_count})" if state.last_command_count > 1 else ""
-    last_cmd_display = f"Last: {state.last_command}{repeat_str}"
-    _safe_addstr(stdscr, row, 20, last_cmd_display)
+    _safe_addstr(stdscr, row, 20, "Commands: ", color_label)
+    _safe_addstr(stdscr, row, 31, str(state.total_commands_received))
+    
+    _safe_addstr(stdscr, row, 40, "Last: ", color_label)
+    _safe_addstr(stdscr, row, 47, state.last_command)
 
     row += 1
     _safe_addstr(stdscr, row, 0, "─" * (w - 1))
