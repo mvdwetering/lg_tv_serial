@@ -253,6 +253,7 @@ class LgTv:
         `on_disconnect` will be called when it is detected that a connection is not working anymore.
         It will _not_ be called when calling `close()` manually.
         """
+        connected = False
         try:
             (self._reader, self._writer) = (
                 await serialx.open_serial_connection(
@@ -266,8 +267,13 @@ class LgTv:
 
             # Only install on_disconnect after connection seems to work to avoid triggering it while not really connected
             self._on_disconnect = on_disconnect
+
+            connected = True
         except (SerialException, OSError) as e:
             raise ConnectionError("Could not connect to LG TV, check the port settings") from e
+        finally:
+            if not connected:
+                await self._close(True)
 
     async def close(self):
         await self._close(False)
@@ -372,7 +378,7 @@ class LgTv:
         await self._do_command("k", "e", 0 if mute else 1)
 
     async def get_mute(self) -> bool | None:
-        response = await self._do_command("k", "e", 0, 0xFF)
+        response = await self._do_command("k", "e", 0xFF)
         if response and response.status_ok:
             # Mute feels flipped, but is according to the documentation
             # Data 00: Volume mute on (Volume off)
@@ -551,11 +557,16 @@ async def main(serial_url: str, set_id: int, rtscts: bool, dsrdtr: bool):
         await tv.connect()
 
         print("--- Current power state")
-        print(f"{await tv.get_power_on()=}")
+        power_state = await tv.get_power_on()
+        print(f"await tv.get_power_on()={power_state}")
         print("--- Power on TV")
         await tv.set_power_on(True)
-        print("--- Wait a bit")
-        await asyncio.sleep(2)
+        wait = 10
+        print("--- Wait {wait} seconds to let the TV power on and be ready for commands".format(wait=wait))
+        for i in range(wait-1, -1, -1):
+            print(f"\r{i} ", end="", flush=True)
+            await asyncio.sleep(1)
+        print()
         print("--- Get all values")
         print(f"{await tv.get_power_on()=}")
         print(f"{await tv.get_input()=}")
@@ -577,6 +588,11 @@ async def main(serial_url: str, set_id: int, rtscts: bool, dsrdtr: bool):
         # print(f"{await tv.get_mute()=}")
         # await tv.send_raw("k", "e", "00")
         # print(f"{await tv.get_mute()=}")
+
+        # Restore original power state
+        if power_state is not None:
+            print(f"--- Restoring original power state {power_state}")
+            await tv.set_power_on(power_state)
 
 
 if __name__ == "__main__":
