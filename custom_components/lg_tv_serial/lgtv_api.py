@@ -378,7 +378,7 @@ class LgTv:
         await self._do_command("k", "e", 0 if mute else 1)
 
     async def get_mute(self) -> bool | None:
-        response = await self._do_command("k", "e", 0, 0xFF)
+        response = await self._do_command("k", "e", 0xFF)
         if response and response.status_ok:
             # Mute feels flipped, but is according to the documentation
             # Data 00: Volume mute on (Volume off)
