@@ -253,6 +253,7 @@ class LgTv:
         `on_disconnect` will be called when it is detected that a connection is not working anymore.
         It will _not_ be called when calling `close()` manually.
         """
+        connected = False
         try:
             (self._reader, self._writer) = (
                 await serialx.open_serial_connection(
@@ -266,8 +267,13 @@ class LgTv:
 
             # Only install on_disconnect after connection seems to work to avoid triggering it while not really connected
             self._on_disconnect = on_disconnect
+
+            connected = True
         except (SerialException, OSError) as e:
             raise ConnectionError("Could not connect to LG TV, check the port settings") from e
+        finally:
+            if not connected:
+                await self._close(True)
 
     async def close(self):
         await self._close(False)
@@ -553,7 +559,7 @@ async def main(serial_url: str, set_id: int, rtscts: bool, dsrdtr: bool):
         print("--- Current power state")
         print(f"{await tv.get_power_on()=}")
         print("--- Power on TV")
-        await tv.set_power_on(True)
+        # await tv.set_power_on(True)
         print("--- Wait a bit")
         await asyncio.sleep(2)
         print("--- Get all values")
