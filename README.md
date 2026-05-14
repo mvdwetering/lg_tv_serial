@@ -85,3 +85,19 @@ Configure the integration as usual.
 * Provide the serial port to which the TV is connected
   * For real serial ports usually something like "/dev/ttyUSB0"
   * When you use a tcp-to-serial converter you can probably use "socket://1.2.3.4:5678" where the IP and Port have to be changed for your situation
+
+## Emulator
+
+For development purposes there is an emulator available to use instead of a real TV. It exposes the API on a TCP socket so you will need to connect using the `socket://emulator-ip:port` syntax.
+
+By default it uses `set-id` 1 and is available on port 12345.
+
+```bash
+./lgtv_emulator.py
+./lgtv_emulator.py --set-id 2 --port 5678
+./lgtv_emulator.py --help
+```
+
+> Disclaimer
+>
+>The emulator is completely AI generated, although it seems to behave ok, be sceptical about it if there is something weird.
