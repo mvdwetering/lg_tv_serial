@@ -319,6 +319,7 @@ class LgTv:
                 async with asyncio.timeout(5):
                     assert self._writer is not None
                     self._writer.write(command)
+                    await self._writer.drain()
 
                     response = bytearray()
                     while True:
