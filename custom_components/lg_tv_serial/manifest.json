@@ -9,6 +9,8 @@
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/mvdwetering/lg_tv_serial/issues",
-  "requirements": ["serialx>=1.2.2"],
-  "version": "0.0.0"
+  "requirements": [
+    "serialx>=1.2.2"
+  ],
+  "version": "0.8.1"
 }
