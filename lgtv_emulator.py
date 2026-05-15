@@ -14,11 +14,11 @@ Example:
 
 import argparse
 import asyncio
+import contextlib
 import curses
 import re
-import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 # ── Name tables ──────────────────────────────────────────────────────────────
 
@@ -134,6 +134,8 @@ class TvState:
     total_commands_received: int = 0  # Commands received from socket
     show_help: bool = False
     power_on_time: float | None = None  # Timestamp when power-on was initiated
+    active_clients: set[asyncio.StreamWriter] = field(default_factory=set)
+    client_tasks: set[asyncio.Task[None]] = field(default_factory=set)
 
 
 # ── Protocol helpers ──────────────────────────────────────────────────────────
@@ -445,7 +447,11 @@ async def _handle_client(
     state: TvState,
     configured_set_id: int,
 ) -> None:
+    task = asyncio.current_task()
+    if task is not None:
+        state.client_tasks.add(task)
     state.clients_connected += 1
+    state.active_clients.add(writer)
     buf = bytearray()
     try:
         while True:
@@ -477,13 +483,19 @@ async def _handle_client(
                     writer.write(response)
                     await writer.drain()
                 state.total_commands_received += 1
+    except asyncio.CancelledError:
+        raise
     except (ConnectionError, asyncio.IncompleteReadError, OSError):
         pass
     finally:
         state.clients_connected = max(0, state.clients_connected - 1)
+        state.active_clients.discard(writer)
+        if task is not None:
+            state.client_tasks.discard(task)
         try:
             writer.close()
-            await writer.wait_closed()
+            with contextlib.suppress(asyncio.TimeoutError):
+                await asyncio.wait_for(writer.wait_closed(), timeout=0.5)
         except Exception:
             pass
 
@@ -639,6 +651,9 @@ def _draw_ui(
     row += 1
     _safe_addstr(stdscr, row, 0, "─" * (w - 1))
 
+    row += 1
+    _safe_addstr(stdscr, row, 2, "Press q to quit", color_label)
+
     stdscr.refresh()
 
 
@@ -653,31 +668,28 @@ async def _display_task(
     has_colors: bool,
     stop_event: asyncio.Event,
 ) -> None:
+    stdscr.nodelay(True)
     while not stop_event.is_set():
         try:
             _draw_ui(stdscr, state, port, host, configured_set_id, has_colors)
         except curses.error:
             pass
+
+        # Drain pending keypresses each frame so quit and controls feel responsive.
+        while not stop_event.is_set():
+            try:
+                key = stdscr.getch()
+            except Exception:
+                stop_event.set()
+                break
+            if key == -1:
+                break
+            _handle_key(key, state, stop_event)
+
         try:
-            await asyncio.sleep(0.25)
+            await asyncio.sleep(0.05)
         except asyncio.CancelledError:
             break
-
-
-async def _keyboard_task(
-    stdscr: "curses.window",
-    state: TvState,
-    stop_event: asyncio.Event,
-) -> None:
-    loop = asyncio.get_running_loop()
-    while not stop_event.is_set():
-        try:
-            key = await loop.run_in_executor(None, stdscr.getch)
-        except Exception:
-            break
-        if stop_event.is_set():
-            break
-        _handle_key(key, state, stop_event)
 
 
 # ── Keyboard handler ──────────────────────────────────────────────────────────
@@ -828,16 +840,26 @@ async def _async_main(
     display = asyncio.create_task(
         _display_task(stdscr, state, port, host, configured_set_id, has_colors, stop_event)
     )
-    keyboard = asyncio.create_task(
-        _keyboard_task(stdscr, state, stop_event)
-    )
 
-    async with server:
+    try:
         await stop_event.wait()
+    finally:
+        state.last_command = "[kbd] Quit requested"
+
+        # Fast shutdown path: initiate closure/cancellation without waiting.
+        server.close()
+
+        for task in list(state.client_tasks):
+            task.cancel()
+
+        for writer in list(state.active_clients):
+            try:
+                writer.close()
+            except Exception:
+                pass
 
     display.cancel()
-    keyboard.cancel()
-    await asyncio.gather(display, keyboard, return_exceptions=True)
+    await asyncio.gather(display, return_exceptions=True)
 
 
 def main() -> None:
