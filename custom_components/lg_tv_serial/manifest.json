@@ -1,6 +1,7 @@
 {
   "domain": "lg_tv_serial",
   "name": "LG TV Serial",
+  "categories": ["media_entertainment.tv_streaming"],
   "codeowners": [
     "@mvdwetering"
   ],
