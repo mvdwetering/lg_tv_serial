@@ -8,6 +8,9 @@ This is a quickly whipped up integration but seems to work fine for me for a whi
 
 I am unsure for what range of TV models this applies, I have a 42LW5400 model from 2011 which has a DB9 serial connector for this protocol. Check the owners manual of your TV (downloadable from LG website) to see if it supports this protocol.
 
+> Note that Home Assistant now also has an [integration for LG TVs over serial port](https://www.home-assistant.io/integrations/lg_tv_rs232/). The main difference seems to be that it only supports a `media_player` entity, but not the `remote`, `switch` or energysaving `select` entities.
+> Pick the integration that works best for you.
+
 ## Gotchas
 
 It takes a while for the TV to change actual state when turning on/off. This is indicated (a bit hacky) by using the state "Buffering". When state is ON it is safe to send other commands.
