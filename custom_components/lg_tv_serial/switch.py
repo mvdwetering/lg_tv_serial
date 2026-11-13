@@ -1,12 +1,14 @@
 from __future__ import annotations
+
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
-from typing import Any, Callable, Coroutine
+from typing import Any
 
 from homeassistant.components.switch import (
     SwitchEntity,
     SwitchEntityDescription,
 )
-from homeassistant.helpers.entity import EntityCategory, DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DEFAULT_DEVICE_NAME, DOMAIN
@@ -52,7 +54,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities(entities)
 
 
-class LgTvSwitch(CoordinatorEntity, SwitchEntity):
+class LgTvSwitch(CoordinatorEntity[LgTvCoordinator], SwitchEntity):
     """Representation of a switch for LG TV."""
 
     _attr_has_entity_name = True
