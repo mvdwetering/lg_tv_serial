@@ -1,7 +1,9 @@
 {
   "domain": "lg_tv_serial",
   "name": "LG TV Serial",
-  "categories": ["media_entertainment.tv_streaming"],
+  "categories": [
+    "media_entertainment.tv_streaming"
+  ],
   "codeowners": [
     "@mvdwetering"
   ],
@@ -10,6 +12,8 @@
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/mvdwetering/lg_tv_serial/issues",
-  "requirements": ["serialx>=1.2.2"],
-  "version": "0.0.0"
+  "requirements": [
+    "serialx>=1.2.2"
+  ],
+  "version": "0.8.3"
 }
