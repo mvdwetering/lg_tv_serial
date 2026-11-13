@@ -1,9 +1,10 @@
 from __future__ import annotations
+
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
-from typing import Callable, Coroutine
 
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
-from homeassistant.helpers.entity import EntityCategory, DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
@@ -52,7 +53,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities(entities)
 
 
-class LgTvSelect(CoordinatorEntity, SelectEntity):
+class LgTvSelect(CoordinatorEntity[LgTvCoordinator], SelectEntity):
     """Representation of a select on a LG TV."""
 
     _attr_has_entity_name = True

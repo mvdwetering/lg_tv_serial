@@ -1,6 +1,9 @@
 {
   "domain": "lg_tv_serial",
   "name": "LG TV Serial",
+  "categories": [
+    "media_entertainment.tv_streaming"
+  ],
   "codeowners": [
     "@mvdwetering"
   ],
@@ -12,5 +15,5 @@
   "requirements": [
     "serialx>=1.2.2"
   ],
-  "version": "0.8.2"
+  "version": "0.8.3"
 }

@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import List
 
 from homeassistant.components.media_player import (
     MediaPlayerDeviceClass,
@@ -12,11 +11,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .helpers import update_ha_state
-
-
 from .const import DEFAULT_DEVICE_NAME, DOMAIN
 from .coordinator import LgTvCoordinator
+from .helpers import update_ha_state
 from .lgtv_api import Input, RemoteKeyCode
 
 SUPPORTED_MEDIAPLAYER_COMMANDS = (
@@ -57,7 +54,7 @@ async def async_setup_entry(
 
 
 
-class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
+class LgTvMediaPlayer(CoordinatorEntity[LgTvCoordinator], MediaPlayerEntity):
     """LG TV mediaplayer."""
 
     _attr_name = None
@@ -177,6 +174,6 @@ class LgTvMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             self.coordinator.data.input = SOURCE_INPUT_MAPPING[source]
 
     @property
-    def source_list(self) -> List[str]:
+    def source_list(self) -> list[str]:
         """List of available sources."""
         return sorted([v for v in INPUT_SOURCE_MAPPING.values()], key=str.lower)

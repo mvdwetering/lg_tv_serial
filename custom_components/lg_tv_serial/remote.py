@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 from homeassistant.components.remote import (
     ATTR_DELAY_SECS,
@@ -13,16 +14,14 @@ from homeassistant.components.remote import (
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .coordinator import LgTvCoordinator
-
 from .const import (
     ATTR_COMMANDS,
     DEFAULT_DEVICE_NAME,
     DOMAIN,
 )
-
-from .lgtv_api import RemoteKeyCode
+from .coordinator import LgTvCoordinator
 from .helpers import update_ha_state
+from .lgtv_api import RemoteKeyCode
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -30,7 +29,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities([LgTvRemote(coordinator, config_entry.entry_id)])
 
 
-class LgTvRemote(CoordinatorEntity, RemoteEntity):
+class LgTvRemote(CoordinatorEntity[LgTvCoordinator], RemoteEntity):
     """Representation of a remote of an LG TV."""
 
     _attr_has_entity_name = True
